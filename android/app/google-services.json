@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "861666413246",
+    "firebase_url": "https://nooneleftbehind-ed8b4-default-rtdb.firebaseio.com",
+    "project_id": "nooneleftbehind-ed8b4",
+    "storage_bucket": "nooneleftbehind-ed8b4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861666413246:android:63fd3181b398a737946cef",
+        "android_client_info": {
+          "package_name": "com.example.no_one_left_behind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBi3p-edwYdN8FsQ-kvR2O9pgE1dCkHsDs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861666413246:android:ee9a475cf1d78cfa946cef",
+        "android_client_info": {
+          "package_name": "com.nooneleftbehind.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBi3p-edwYdN8FsQ-kvR2O9pgE1dCkHsDs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
