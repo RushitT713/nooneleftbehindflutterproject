@@ -165,10 +165,8 @@ class TripService {
     required String tripCode,
     required String userUid,
   }) async {
-    // Mark as offline and remove live location
-    await _db.child(memberPath(tripCode, userUid)).update({
-      'isOnline': false,
-    });
+    // Remove member details and live location entirely from the convoy
+    await _db.child(memberPath(tripCode, userUid)).remove();
     await _db.child(liveLocationPath(tripCode, userUid)).remove();
   }
 

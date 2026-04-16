@@ -1,4 +1,4 @@
-package com.example.no_one_left_behind
+package com.nooneleftbehind.app
 
 import io.flutter.embedding.android.FlutterActivity
 

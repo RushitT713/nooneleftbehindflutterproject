@@ -33,12 +33,19 @@ class _LobbyScreenState extends State<LobbyScreen> {
 
   /// Checks if there's a saved trip session and reconnects if valid.
   Future<void> _tryReconnect() async {
+    SessionRestoreResult result = SessionRestoreResult.noSession;
+    bool timedOut = false;
+
     try {
       final provider = context.read<TripProvider>();
-      final restored = await provider
+      result = await provider
           .tryRestoreSession()
-          .timeout(const Duration(seconds: 5), onTimeout: () => false);
-      if (restored && mounted) {
+          .timeout(const Duration(seconds: 5), onTimeout: () {
+        timedOut = true;
+        return SessionRestoreResult.noSession;
+      });
+
+      if (result == SessionRestoreResult.success && mounted) {
         Navigator.pushReplacement(
           context,
           ScaleFadeRoute(page: const MapScreen()),
@@ -48,7 +55,45 @@ class _LobbyScreenState extends State<LobbyScreen> {
     } catch (e) {
       debugPrint('Session restore failed: $e');
     }
-    if (mounted) setState(() => _checkingSession = false);
+
+    if (mounted) {
+      setState(() => _checkingSession = false);
+
+      // Show a message if the trip expired or timed out
+      if (result == SessionRestoreResult.expired) {
+        _showExpiredSnackBar('Your previous convoy has ended or expired.');
+      } else if (timedOut) {
+        _showExpiredSnackBar(
+            'Could not reconnect to your convoy. It may have ended.');
+      }
+    }
+  }
+
+  void _showExpiredSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.info_outline, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontFamily: 'Thicccboi',
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: kAccentBlue,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        duration: const Duration(seconds: 4),
+      ),
+    );
   }
 
   Future<void> _onJoinSubmit() async {

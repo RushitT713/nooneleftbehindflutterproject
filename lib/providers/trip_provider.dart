@@ -6,6 +6,16 @@ import '../models/member_model.dart';
 import '../services/trip_service.dart';
 import '../constants.dart';
 
+/// Result of attempting to restore a saved trip session.
+enum SessionRestoreResult {
+  /// Restored successfully — navigate to map.
+  success,
+  /// No saved session found — nothing to restore.
+  noSession,
+  /// Saved session found but the trip has expired or been disbanded.
+  expired,
+}
+
 /// Full trip state manager — holds all current trip info, members, and
 /// persists the active trip to SharedPreferences for reconnection.
 class TripProvider extends ChangeNotifier {
@@ -176,8 +186,8 @@ class TripProvider extends ChangeNotifier {
   }
 
   /// Attempts to restore a previous trip session from SharedPreferences.
-  /// Returns true if a valid, active trip was restored.
-  Future<bool> tryRestoreSession() async {
+  /// Returns a [SessionRestoreResult] indicating the outcome.
+  Future<SessionRestoreResult> tryRestoreSession() async {
     final prefs = await SharedPreferences.getInstance();
     final savedCode = prefs.getString('active_trip_code');
     final savedUid = prefs.getString('active_user_id');
@@ -186,14 +196,14 @@ class TripProvider extends ChangeNotifier {
         savedCode.isEmpty ||
         savedUid == null ||
         savedUid.isEmpty) {
-      return false;
+      return SessionRestoreResult.noSession;
     }
 
     // Check if the trip is still alive in Firebase
     final isExpired = await _tripService.cleanupIfExpired(savedCode);
     if (isExpired) {
       await _clearPrefs();
-      return false;
+      return SessionRestoreResult.expired;
     }
 
     // Restore the session
@@ -213,7 +223,7 @@ class TripProvider extends ChangeNotifier {
 
     _startListening();
     notifyListeners();
-    return true;
+    return SessionRestoreResult.success;
   }
 
   @override

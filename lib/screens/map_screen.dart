@@ -357,6 +357,15 @@ class _MapScreenState extends State<MapScreen> {
   void _centerOnConvoy() {
     if (_convoyLocations.isEmpty) return;
 
+    if (_convoyLocations.length == 1) {
+      final loc = _convoyLocations.values.first;
+      _mapController.move(
+        LatLng(loc['lat'].toDouble(), loc['lng'].toDouble()),
+        _mapController.camera.zoom,
+      );
+      return;
+    }
+
     double minLat = 90, maxLat = -90, minLng = 180, maxLng = -180;
     for (final loc in _convoyLocations.values) {
       final lat = loc['lat'].toDouble();
@@ -1161,108 +1170,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          // 5. DESTINATION INFO BAR (Floating)
-          if (_destination != null)
-            Positioned(
-              left: 16,
-              right: 16,
-              bottom: 130, // Above the ConvoyPanel
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: kBackground.withValues(alpha: 0.95),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: kPrimary.withValues(alpha: 0.3)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: kPrimaryLight,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.near_me_rounded, color: kPrimary),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _destination!.name,
-                            style: const TextStyle(
-                              color: kTextPrimary,
-                              fontFamily: 'Thicccboi',
-                              fontWeight: FontWeight.w800,
-                              fontSize: 14,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (_isFetchingRoute)
-                            const Text(
-                              'Calculating route...',
-                              style: TextStyle(color: kTextTertiary, fontSize: 12),
-                            )
-                          else if (_routeResult != null)
-                            Text(
-                              '${_routeResult!.distanceText} • ${_routeResult!.durationText}',
-                              style: const TextStyle(
-                                  color: kPrimaryDark,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12),
-                            ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kPrimary,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 10),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      onPressed: () {
-                        final myLoc = _convoyLocations[myUserId];
-                        if (myLoc != null) {
-                          NavigationUtils.openRouteInGoogleMaps(
-                            originLat: myLoc['lat'].toDouble(),
-                            originLng: myLoc['lng'].toDouble(),
-                            destLat: _destination!.lat,
-                            destLng: _destination!.lng,
-                          );
-                        } else {
-                          NavigationUtils.navigateToMember(
-                            lat: _destination!.lat,
-                            lng: _destination!.lng,
-                          );
-                        }
-                      },
-                      child: const Text(
-                        'GO',
-                        style: TextStyle(
-                            fontFamily: 'Thicccboi',
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.2),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          // 6. CONVOY BOTTOM PANEL
+          // 5. CONVOY BOTTOM PANEL
           Align(
             alignment: Alignment.bottomCenter,
             child: ConvoyPanel(
@@ -1290,6 +1198,27 @@ class _MapScreenState extends State<MapScreen> {
                   TripService().transferHost(tripCode: tripCode, currentHostUid: myUserId, newHostUid: uid);
                 }
               } : null,
+              destination: _destination,
+              isFetchingRoute: _isFetchingRoute,
+              routeResult: _routeResult,
+              onNavigateDestination: () {
+                if (_destination != null) {
+                  final myLoc = _convoyLocations[myUserId];
+                  if (myLoc != null) {
+                    NavigationUtils.openRouteInGoogleMaps(
+                      originLat: myLoc['lat'].toDouble(),
+                      originLng: myLoc['lng'].toDouble(),
+                      destLat: _destination!.lat,
+                      destLng: _destination!.lng,
+                    );
+                  } else {
+                    NavigationUtils.navigateToMember(
+                      lat: _destination!.lat,
+                      lng: _destination!.lng,
+                    );
+                  }
+                }
+              },
             ),
           ),
 

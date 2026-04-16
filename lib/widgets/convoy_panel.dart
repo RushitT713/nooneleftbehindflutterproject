@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import '../constants.dart';
 import '../utils/navigation_utils.dart';
 import '../widgets/member_detail_sheet.dart';
+import '../models/trip_model.dart';
+import '../services/route_service.dart';
 
 /// Bottom convoy panel — light theme, minimalist design.
 /// Shows current speed + trip code info bar, nearby convoy member cards,
@@ -19,6 +21,10 @@ class ConvoyPanel extends StatelessWidget {
   final void Function(String uid) onLocateMember;
   final void Function(String)? onKickMember;
   final void Function(String)? onTransferHost;
+  final TripDestination? destination;
+  final bool isFetchingRoute;
+  final RouteResult? routeResult;
+  final VoidCallback? onNavigateDestination;
 
   const ConvoyPanel({
     super.key,
@@ -32,6 +38,10 @@ class ConvoyPanel extends StatelessWidget {
     required this.onLocateMember,
     this.onKickMember,
     this.onTransferHost,
+    this.destination,
+    this.isFetchingRoute = false,
+    this.routeResult,
+    this.onNavigateDestination,
   });
 
   @override
@@ -217,6 +227,83 @@ class ConvoyPanel extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // ── DESTINATION INFO BAR ───────────────────
+              if (destination != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: kSurface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: kSurfaceBorder, width: 1),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: kPrimaryLight,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.near_me_rounded, color: kPrimary),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                destination!.name,
+                                style: const TextStyle(
+                                  color: kTextPrimary,
+                                  fontFamily: 'Thicccboi',
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 14,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (isFetchingRoute)
+                                const Text(
+                                  'Calculating route...',
+                                  style: TextStyle(color: kTextTertiary, fontSize: 12),
+                                )
+                              else if (routeResult != null)
+                                Text(
+                                  '${routeResult!.distanceText} • ${routeResult!.durationText}',
+                                  style: const TextStyle(
+                                      color: kPrimaryDark,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: kPrimary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)),
+                          ),
+                          onPressed: onNavigateDestination,
+                          child: const Text(
+                            'GO',
+                            style: TextStyle(
+                                fontFamily: 'Thicccboi',
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
 
               // ── NEARBY CONVOY Header ───────────────────
               const Padding(
