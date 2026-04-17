@@ -43,3 +43,21 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# JVM crash/replay logs
+hs_err_pid*.log
+replay_pid*.log
+
+# Temporary debug/build output
+analyze*.txt
+build_error.txt
+build_verbose.txt
+err*.txt
+err*.log
+
+# Design tool screenshots
+stitch_*.png
+
+# Signing (sensitive)
+android/key.properties
+*.jks
