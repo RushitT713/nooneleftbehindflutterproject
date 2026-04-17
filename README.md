@@ -214,6 +214,28 @@ The app requires the following Android permissions:
 
 ---
 
+## 🔒 Privacy Policy
+
+**NOLB Privacy Policy**
+
+**Information Collection & Use**
+NOLB focuses on keeping your convoy together in real-time. We only collect the minimal data required for real-time tracking, such as:
+*   **Location Data**: Your live location is securely processed and temporarily stored on Firebase Realtime Database. It is only shared with active members of the convoy you join. Location tracking occurs in the background when you grant the "Allow all the time" permission to keep you connected while your device is locked or routing is active in another app.
+*   **Camera & Photos**: Used for features such as sharing images in trip chat and capturing profile photos. Face detection is conducted entirely on-device using MLKit and no facial recognition data is transmitted or stored.
+
+**Data Retention**
+*   Active trip details, chat, and location data are deleted upon trip expiration or disbandment.
+*   Trip histories are saved locally on your device for your reference and are not stored permanently by us on remote servers.
+
+**Third-Party Services**
+NOLB uses the following third-party services:
+*   Firebase Realtime Database (for synchronized tracking and chats)
+*   Cloudinary (for temporary image hosting during chat) 
+
+By using NOLB, you consent to this policy and the collection of real-time data strictly for convoy tracking functionality.
+
+---
+
 ## 📄 License
 
 This project is proprietary. All rights reserved.
