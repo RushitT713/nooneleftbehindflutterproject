@@ -99,20 +99,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kTextPrimary),
+          icon: Icon(Icons.arrow_back, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Trip History',
           style: TextStyle(
             fontFamily: 'Thicccboi',
             fontWeight: FontWeight.w900,
-            color: kTextPrimary,
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             letterSpacing: 0.5,
           ),
         ),
@@ -124,7 +124,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: kPrimary));
+      return Center(child: CircularProgressIndicator(color: kPrimary));
     }
 
     if (_history.isEmpty) {
@@ -133,21 +133,21 @@ class _HistoryScreenState extends State<HistoryScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.history_toggle_off,
-                size: 80, color: kTextTertiary.withValues(alpha: 0.3)),
-            const SizedBox(height: 24),
-            const Text(
+                size: 80, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary).withValues(alpha: 0.3)),
+            SizedBox(height: 24),
+            Text(
               'No past trips found',
               style: TextStyle(
-                color: kTextSecondary,
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                 fontSize: 18,
                 fontFamily: 'Thicccboi',
                 fontWeight: FontWeight.w800,
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
+            SizedBox(height: 8),
+            Text(
               'Completed trips will appear here.',
-              style: TextStyle(color: kTextTertiary, fontSize: 14),
+              style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 14),
             ),
           ],
         ),
@@ -183,16 +183,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 24),
-        child: const Icon(Icons.delete_outline, color: kAlertRed, size: 28),
+        child: Icon(Icons.delete_outline, color: kAlertRed, size: 28),
       ),
       onDismissed: (_) {
         setState(() => _history.removeWhere((item) => item.id == trip.id));
         _deleteHistoryItem(trip.id);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text('Trip deleted from history'),
             behavior: SnackBarBehavior.floating,
-            backgroundColor: kTextPrimary,
+            backgroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             duration: Duration(seconds: 2),
           ),
         );
@@ -208,10 +208,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
           curve: Curves.easeInOut,
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: kSurface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: isExpanded ? kPrimary.withValues(alpha: 0.5) : kSurfaceBorder,
+              color: isExpanded ? kPrimary.withValues(alpha: 0.5) : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
               width: isExpanded ? 2 : 1,
             ),
             boxShadow: isExpanded
@@ -240,17 +240,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       decoration: BoxDecoration(
                         color: trip.wasHost
                             ? kPrimaryLight
-                            : kSurfaceBorder.withValues(alpha: 0.3),
+                            : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder).withValues(alpha: 0.3),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
                         child: Text(
                           trip.wasHost ? '👑' : emoji,
-                          style: const TextStyle(fontSize: 20),
+                          style: TextStyle(fontSize: 20),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: 14),
                     // Summary Info
                     Expanded(
                       child: Column(
@@ -263,8 +263,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 trip.destinationName?.isNotEmpty == true
                                     ? trip.destinationName!
                                     : 'No destination',
-                                style: const TextStyle(
-                                  color: kTextPrimary,
+                                style: TextStyle(
+                                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                                   fontFamily: 'Thicccboi',
                                   fontWeight: FontWeight.w800,
                                   fontSize: 16,
@@ -276,15 +276,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 isExpanded
                                     ? Icons.keyboard_arrow_up
                                     : Icons.keyboard_arrow_down,
-                                color: kTextTertiary,
+                                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: 4),
                           Text(
                             _formatDate(trip.timestamp),
-                            style: const TextStyle(
-                              color: kTextSecondary,
+                            style: TextStyle(
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             ),
@@ -298,7 +298,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
               // ── Expanded Content ──
               if (isExpanded) ...[
-                const Divider(height: 1, color: kSurfaceBorder),
+                Divider(height: 1, color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -327,16 +327,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
 
                       // Members List
                       if (trip.memberNames.isNotEmpty) ...[
                         Align(
                           alignment: Alignment.centerLeft,
                           child: Text(
-                            'CONVEY MEMBERS (${trip.memberNames.length})',
-                            style: const TextStyle(
-                              color: kTextTertiary,
+                            'CONVOY MEMBERS (${trip.memberNames.length})',
+                            style: TextStyle(
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                               fontSize: 10,
                               fontFamily: 'Thicccboi',
                               fontWeight: FontWeight.w800,
@@ -344,7 +344,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 10),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
@@ -353,13 +353,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: kSurfaceBorder.withValues(alpha: 0.3),
+                                color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder).withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 name,
-                                style: const TextStyle(
-                                  color: kTextPrimary,
+                                style: TextStyle(
+                                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -368,14 +368,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           }).toList(),
                         ),
                       ],
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       // Trip Code & Copy
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: kBackground,
+                          color: Theme.of(context).scaffoldBackgroundColor,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: kSurfaceBorder),
+                          border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -383,20 +383,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   'TRIP CODE',
                                   style: TextStyle(
-                                    color: kTextTertiary,
+                                    color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                                     fontSize: 10,
                                     fontWeight: FontWeight.w700,
                                     letterSpacing: 1,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2),
                                 Text(
                                   trip.tripCode,
-                                  style: const TextStyle(
-                                    color: kTextPrimary,
+                                  style: TextStyle(
+                                    color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                                     fontFamily: 'Thicccboi',
                                     fontWeight: FontWeight.w900,
                                     fontSize: 14,
@@ -413,7 +413,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   color: kPrimaryLight,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
-                                child: const Text(
+                                child: Text(
                                   'HOST',
                                   style: TextStyle(
                                     color: kPrimary,
@@ -442,11 +442,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
-        const SizedBox(height: 6),
+        SizedBox(height: 6),
         Text(
           value,
-          style: const TextStyle(
-            color: kTextPrimary,
+          style: TextStyle(
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             fontFamily: 'Thicccboi',
             fontWeight: FontWeight.w800,
             fontSize: 14,
@@ -454,8 +454,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: kTextTertiary,
+          style: TextStyle(
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
             fontSize: 11,
             fontWeight: FontWeight.w600,
           ),

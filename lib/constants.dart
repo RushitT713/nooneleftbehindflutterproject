@@ -36,11 +36,11 @@ const Color kChatOther     = Color(0xFFF0F0F5);  // Others' message bubble
 const Color kSystemMsg     = Color(0xFF9CA3AF);  // System messages
 
 // ─────────────────────────────────────────────
-// COLOR PALETTE — Dark Theme (Night Driving)
+// COLOR PALETTE — Dark Theme (Navy Blue & Green)
 // ─────────────────────────────────────────────
-const Color kDarkBackground    = Color(0xFF0D0D0D);  // Near-black
-const Color kDarkSurface       = Color(0xFF1A1A1A);  // Card / sheet background
-const Color kDarkSurfaceBorder = Color(0xFF2A2A2A);  // Subtle card borders
+const Color kDarkBackground    = Color(0xFF1A2B56);  // Navy Blue
+const Color kDarkSurface       = Color(0xFF23366B);  // Lighter Navy for cards
+const Color kDarkSurfaceBorder = Color(0xFF2C437F);  // Subtle card borders
 const Color kDarkTextPrimary   = Color(0xFFE8E8E8);  // Light text on dark
 const Color kDarkTextSecondary = Color(0xFF9CA3AF);  // Muted labels
 const Color kDarkTextTertiary  = Color(0xFF6B7280);  // Hints

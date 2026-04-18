@@ -50,20 +50,20 @@ class _HaltScreenState extends State<HaltScreen> {
     final activeCount = _proposals.length;
 
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kTextPrimary),
+          icon: Icon(Icons.arrow_back, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Halt Proposals',
           style: TextStyle(
             fontFamily: 'Thicccboi',
             fontWeight: FontWeight.w900,
-            color: kTextPrimary,
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             fontSize: 20,
           ),
         ),
@@ -71,20 +71,20 @@ class _HaltScreenState extends State<HaltScreen> {
       ),
       body: Column(
         children: [
-          Container(height: 1, color: kSurfaceBorder),
+          Container(height: 1, color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
 
           // Active Polls Header
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 8),
             child: Row(
               children: [
-                const Text(
+                Text(
                   'Active Polls',
                   style: TextStyle(
                     fontFamily: 'Thicccboi',
                     fontWeight: FontWeight.w900,
                     fontSize: 22,
-                    color: kTextPrimary,
+                    color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                   ),
                 ),
                 const Spacer(),
@@ -97,7 +97,7 @@ class _HaltScreenState extends State<HaltScreen> {
                   ),
                   child: Text(
                     '$activeCount Active',
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: kPrimary,
                       fontFamily: 'Thicccboi',
                       fontWeight: FontWeight.w700,
@@ -117,23 +117,23 @@ class _HaltScreenState extends State<HaltScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.back_hand_outlined,
-                            color: kTextTertiary.withValues(alpha: 0.4),
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary).withValues(alpha: 0.4),
                             size: 48),
-                        const SizedBox(height: 12),
-                        const Text(
+                        SizedBox(height: 12),
+                        Text(
                           'No active proposals',
                           style: TextStyle(
-                            color: kTextTertiary,
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                             fontFamily: 'Thicccboi',
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
+                        SizedBox(height: 4),
+                        Text(
                           'Propose a halt for the convoy to vote on!',
                           style: TextStyle(
-                            color: kTextTertiary,
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                             fontSize: 13,
                           ),
                         ),
@@ -144,7 +144,7 @@ class _HaltScreenState extends State<HaltScreen> {
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
                     itemCount: _proposals.length,
                     separatorBuilder: (_, _) =>
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                     itemBuilder: (context, index) {
                       final halt = _proposals[index];
                       final isLeading = _isLeadingProposal(halt);
@@ -169,8 +169,8 @@ class _HaltScreenState extends State<HaltScreen> {
             height: 54,
             child: ElevatedButton.icon(
               onPressed: () => _showProposeSheet(context),
-              icon: const Icon(Icons.pin_drop, size: 20),
-              label: const Text(
+              icon: Icon(Icons.pin_drop, size: 20),
+              label: Text(
                 'Propose New Halt',
                 style: TextStyle(
                   fontFamily: 'Thicccboi',
@@ -206,7 +206,7 @@ class _HaltScreenState extends State<HaltScreen> {
     final provider = context.read<TripProvider>();
     showModalBottomSheet(
       context: context,
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -258,12 +258,12 @@ class _HaltProposalCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: kSurface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: isLeading
               ? kPrimary.withValues(alpha: 0.3)
-              : kSurfaceBorder,
+              : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
           width: isLeading ? 2 : 1,
         ),
       ),
@@ -276,10 +276,10 @@ class _HaltProposalCard extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle,
+                  Icon(Icons.check_circle,
                       color: kPrimary, size: 16),
-                  const SizedBox(width: 4),
-                  const Text(
+                  SizedBox(width: 4),
+                  Text(
                     'LEADING OPTION',
                     style: TextStyle(
                       fontFamily: 'Thicccboi',
@@ -303,24 +303,24 @@ class _HaltProposalCard extends StatelessWidget {
                   children: [
                     Text(
                       halt.locationName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'Thicccboi',
                         fontWeight: FontWeight.w900,
                         fontSize: 18,
-                        color: kTextPrimary,
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                       ),
                     ),
                     if (halt.note != null && halt.note!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         halt.note!,
-                        style: const TextStyle(
-                          color: kTextSecondary,
+                        style: TextStyle(
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                           fontSize: 13,
                         ),
                       ),
                     ],
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Row(
                       children: [
                         CircleAvatar(
@@ -330,7 +330,7 @@ class _HaltProposalCard extends StatelessWidget {
                             halt.proposerName.isNotEmpty
                                 ? halt.proposerName[0]
                                 : '?',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: kPrimary,
                               fontFamily: 'Thicccboi',
                               fontWeight: FontWeight.w800,
@@ -338,19 +338,19 @@ class _HaltProposalCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text(
                           'Proposed by ${halt.proposerName}',
-                          style: const TextStyle(
-                            color: kTextTertiary,
+                          style: TextStyle(
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                             fontSize: 12,
                           ),
                         ),
                         const Spacer(),
                         Text(
                           '${halt.votes.length} vote${halt.votes.length == 1 ? '' : 's'}',
-                          style: const TextStyle(
-                            color: kTextTertiary,
+                          style: TextStyle(
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                             fontSize: 12,
                           ),
                         ),
@@ -363,13 +363,13 @@ class _HaltProposalCard extends StatelessWidget {
           ),
 
           if (isLeading) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             // Vote progress bars
             _VoteBar(label: 'Yes', percent: yesPercent, color: kPrimary),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             _VoteBar(label: 'No', percent: noPercent, color: kAlertRed),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
 
             // Vote action + cancel
             Row(
@@ -384,7 +384,7 @@ class _HaltProposalCard extends StatelessWidget {
                     onTap: () => _castVote(HaltVote.yes, myVote),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: _VoteActionButton(
                     icon: Icons.thumb_down,
@@ -395,7 +395,7 @@ class _HaltProposalCard extends StatelessWidget {
                     onTap: () => _castVote(HaltVote.no, myVote),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Expanded(
                   child: _VoteActionButton(
                     icon: Icons.help_outline,
@@ -409,7 +409,7 @@ class _HaltProposalCard extends StatelessWidget {
               ],
             ),
           ] else ...[
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
 
             // Vote buttons row
             Row(
@@ -422,7 +422,7 @@ class _HaltProposalCard extends StatelessWidget {
                   color: kPrimary,
                   onTap: () => _castVote(HaltVote.yes, myVote),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 _VoteActionButton(
                   icon: Icons.thumb_down_outlined,
                   label: 'No',
@@ -431,7 +431,7 @@ class _HaltProposalCard extends StatelessWidget {
                   color: kAlertRed,
                   onTap: () => _castVote(HaltVote.no, myVote),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 _VoteActionButton(
                   icon: Icons.help_outline,
                   label: 'Maybe',
@@ -494,10 +494,10 @@ class _VoteActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? color.withValues(alpha: 0.1) : kBackground,
+          color: isActive ? color.withValues(alpha: 0.1) : Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isActive ? color : kSurfaceBorder,
+            color: isActive ? color : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
             width: isActive ? 2 : 1,
           ),
         ),
@@ -505,15 +505,15 @@ class _VoteActionButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: isActive ? color : kTextTertiary, size: 18),
-            const SizedBox(width: 4),
+            Icon(icon, color: isActive ? color : (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), size: 18),
+            SizedBox(width: 4),
             Text(
               '$count',
               style: TextStyle(
                 fontFamily: 'Thicccboi',
                 fontWeight: FontWeight.w800,
                 fontSize: 14,
-                color: isActive ? color : kTextSecondary,
+                color: isActive ? color : (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
               ),
             ),
           ],
@@ -545,11 +545,11 @@ class _VoteBar extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'Thicccboi',
                 fontWeight: FontWeight.w700,
                 fontSize: 13,
-                color: kTextPrimary,
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
               ),
             ),
             Text(
@@ -563,13 +563,13 @@ class _VoteBar extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        SizedBox(height: 4),
         ClipRRect(
           borderRadius: BorderRadius.circular(4),
           child: LinearProgressIndicator(
             value: percent / 100.0,
             minHeight: 6,
-            backgroundColor: kSurfaceBorder,
+            backgroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
             valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
@@ -633,107 +633,107 @@ class _ProposeHaltSheetState extends State<_ProposeHaltSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: kSurfaceBorder,
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
-          const Text(
+          Text(
             'Propose a Halt',
             style: TextStyle(
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w900,
               fontSize: 22,
-              color: kTextPrimary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             ),
           ),
-          const SizedBox(height: 4),
-          const Text(
+          SizedBox(height: 4),
+          Text(
             'Your convoy will vote on this stop.',
-            style: TextStyle(color: kTextSecondary, fontSize: 14),
+            style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), fontSize: 14),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Location Name
-          const Text(
+          Text(
             'LOCATION NAME',
             style: TextStyle(
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w800,
               fontSize: 12,
-              color: kTextTertiary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           TextField(
             controller: _nameController,
-            style: const TextStyle(color: kTextPrimary, fontSize: 15),
+            style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), fontSize: 15),
             decoration: InputDecoration(
               hintText: 'e.g. Shell Gas Station',
               hintStyle:
-                  TextStyle(color: kTextTertiary.withValues(alpha: 0.6)),
+                  TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary).withValues(alpha: 0.6)),
               filled: true,
-              fillColor: kSurface,
+              fillColor: Theme.of(context).colorScheme.surface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: kSurfaceBorder),
+                borderSide: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: kSurfaceBorder),
+                borderSide: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: kPrimary, width: 2),
+                borderSide: BorderSide(color: kPrimary, width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 14),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Reason
-          const Text(
+          Text(
             'REASON (OPTIONAL)',
             style: TextStyle(
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w800,
               fontSize: 12,
-              color: kTextTertiary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           TextField(
             controller: _noteController,
             maxLines: 2,
-            style: const TextStyle(color: kTextPrimary, fontSize: 15),
+            style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), fontSize: 15),
             decoration: InputDecoration(
               hintText: 'e.g. Running low on fuel',
               hintStyle:
-                  TextStyle(color: kTextTertiary.withValues(alpha: 0.6)),
+                  TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary).withValues(alpha: 0.6)),
               filled: true,
-              fillColor: kSurface,
+              fillColor: Theme.of(context).colorScheme.surface,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: kSurfaceBorder),
+                borderSide: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: kSurfaceBorder),
+                borderSide: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: const BorderSide(color: kPrimary, width: 2),
+                borderSide: BorderSide(color: kPrimary, width: 2),
               ),
               contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 14),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Quick categories
           Wrap(
@@ -747,7 +747,7 @@ class _ProposeHaltSheetState extends State<_ProposeHaltSheet> {
               _categoryChip('🛌 Rest'),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Submit button
           SizedBox(
@@ -768,8 +768,8 @@ class _ProposeHaltSheetState extends State<_ProposeHaltSheet> {
                 final note = _noteController.text.trim();
                 widget.onSubmit(name, note.isEmpty ? null : note);
               },
-              icon: const Icon(Icons.pin_drop, size: 20),
-              label: const Text(
+              icon: Icon(Icons.pin_drop, size: 20),
+              label: Text(
                 'Submit Proposal',
                 style: TextStyle(
                   fontFamily: 'Thicccboi',
@@ -799,10 +799,10 @@ class _ProposeHaltSheetState extends State<_ProposeHaltSheet> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? kPrimaryLight : kSurface,
+          color: isSelected ? kPrimaryLight : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? kPrimary : kSurfaceBorder,
+            color: isSelected ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -812,7 +812,7 @@ class _ProposeHaltSheetState extends State<_ProposeHaltSheet> {
             fontFamily: 'Thicccboi',
             fontWeight: FontWeight.w700,
             fontSize: 13,
-            color: isSelected ? kPrimary : kTextPrimary,
+            color: isSelected ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
           ),
         ),
       ),

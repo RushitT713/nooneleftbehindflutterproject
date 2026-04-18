@@ -55,26 +55,26 @@ class MemberDetailSheet extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: kSurfaceBorder, width: 1),
+          side: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            color: kTextPrimary,
+          style: TextStyle(
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
           content,
-          style: const TextStyle(color: kTextSecondary),
+          style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel', style: TextStyle(color: kTextTertiary)),
+            child: Text('Cancel', style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary))),
           ),
           ElevatedButton(
             onPressed: () {
@@ -87,7 +87,7 @@ class MemberDetailSheet extends StatelessWidget {
             ),
             child: Text(
               isDestructive ? 'Confirm Kick' : 'Confirm',
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: Colors.white),
             ),
           ),
         ],
@@ -109,8 +109,8 @@ class MemberDetailSheet extends StatelessWidget {
     );
 
     return Container(
-      decoration: const BoxDecoration(
-        color: kBackground,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: const EdgeInsets.only(bottom: 30),
@@ -124,7 +124,7 @@ class MemberDetailSheet extends StatelessWidget {
               width: 40,
               height: 5,
               decoration: BoxDecoration(
-                color: kSurfaceBorder.withValues(alpha: 0.5),
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder).withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
@@ -138,14 +138,14 @@ class MemberDetailSheet extends StatelessWidget {
                   ? CircleAvatar(
                       radius: 40,
                       backgroundImage: NetworkImage(photo),
-                      backgroundColor: kSurface,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                     )
                   : CircleAvatar(
                       radius: 40,
                       backgroundColor: kPrimaryLight,
                       child: Text(
                         _getInitials(name),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: kPrimary,
                           fontWeight: FontWeight.w800,
                           fontSize: 28,
@@ -161,34 +161,34 @@ class MemberDetailSheet extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isOnline ? kOnlineGreen : kOfflineGrey,
                     shape: BoxShape.circle,
-                    border: Border.all(color: kBackground, width: 3),
+                    border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 3),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 isMe ? '$name (You)' : name,
-                style: const TextStyle(
-                  color: kTextPrimary,
+                style: TextStyle(
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                   fontSize: 22,
                   fontFamily: 'Thicccboi',
                   fontWeight: FontWeight.w900,
                 ),
               ),
               if (isHost) ...[
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: kPrimaryLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: Text(
                     '👑 HOST',
                     style: TextStyle(
                       color: kPrimary,
@@ -201,16 +201,16 @@ class MemberDetailSheet extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Text(
             '${vehicleInfo.emoji} Driving a ${vehicleInfo.name}',
-            style: const TextStyle(
-              color: kTextSecondary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
               fontSize: 14,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Stats row
           Padding(
@@ -219,14 +219,16 @@ class MemberDetailSheet extends StatelessWidget {
               children: [
                 Expanded(
                   child: _buildStatBox(
+                    context,
                     Icons.access_time_rounded,
                     'Joined',
                     _formatJoinTime(),
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: _buildStatBox(
+                    context,
                     Icons.route_rounded,
                     'Distance',
                     _formatDistance(),
@@ -235,8 +237,8 @@ class MemberDetailSheet extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          const Divider(height: 1, color: kSurfaceBorder),
+          SizedBox(height: 24),
+          Divider(height: 1, color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
 
           // Actions
           if (!isMe && onLocate != null)
@@ -247,11 +249,11 @@ class MemberDetailSheet extends StatelessWidget {
                   color: kAccentBlue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.my_location_rounded, color: kAccentBlue),
+                child: Icon(Icons.my_location_rounded, color: kAccentBlue),
               ),
-              title: const Text('Locate on Map',
+              title: Text('Locate on Map',
                   style: TextStyle(
-                      color: kTextPrimary, fontWeight: FontWeight.w600)),
+                      color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), fontWeight: FontWeight.w600)),
               onTap: () {
                 Navigator.pop(context);
                 onLocate!(uid);
@@ -259,7 +261,7 @@ class MemberDetailSheet extends StatelessWidget {
             ),
 
           if (amIHost && !isMe) ...[
-            const Divider(height: 1, color: kSurfaceBorder),
+            Divider(height: 1, color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
             if (onTransferHost != null)
               ListTile(
                 leading: Container(
@@ -268,12 +270,12 @@ class MemberDetailSheet extends StatelessWidget {
                     color: kPrimaryLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.workspace_premium_rounded,
+                  child: Icon(Icons.workspace_premium_rounded,
                       color: kPrimary),
                 ),
-                title: const Text('Transfer Host Role',
+                title: Text('Transfer Host Role',
                     style: TextStyle(
-                        color: kTextPrimary, fontWeight: FontWeight.w600)),
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), fontWeight: FontWeight.w600)),
                 onTap: () {
                   _showConfirmDialog(
                     context,
@@ -291,9 +293,9 @@ class MemberDetailSheet extends StatelessWidget {
                     color: kAlertRed.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.person_remove_rounded, color: kAlertRed),
+                  child: Icon(Icons.person_remove_rounded, color: kAlertRed),
                 ),
-                title: const Text('Kick Member',
+                title: Text('Kick Member',
                     style: TextStyle(
                         color: kAlertRed, fontWeight: FontWeight.w600)),
                 onTap: () {
@@ -312,33 +314,33 @@ class MemberDetailSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildStatBox(IconData icon, String label, String value) {
+  Widget _buildStatBox(BuildContext context, IconData icon, String label, String value) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       decoration: BoxDecoration(
-        color: kSurface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: kSurfaceBorder),
+        border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: kTextTertiary, size: 20),
-          const SizedBox(height: 8),
+          Icon(icon, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), size: 20),
+          SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              color: kTextPrimary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w800,
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
-              color: kTextTertiary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               fontSize: 11,
             ),
           ),

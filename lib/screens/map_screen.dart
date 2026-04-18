@@ -9,6 +9,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import '../constants.dart';
 import '../providers/trip_provider.dart';
+import '../providers/theme_provider.dart';
 import '../models/sos_model.dart';
 import '../models/trip_model.dart';
 import '../services/connectivity_service.dart';
@@ -17,6 +18,8 @@ import '../services/trip_service.dart';
 import '../services/shake_detector_service.dart';
 import '../services/sos_service.dart';
 import '../services/route_service.dart';
+import '../services/notification_service.dart';
+import '../services/halt_service.dart';
 import '../utils/navigation_utils.dart';
 import '../widgets/bobblehead_marker.dart';
 import '../widgets/convoy_panel.dart';
@@ -44,8 +47,12 @@ class _MapScreenState extends State<MapScreen> {
   StreamSubscription<ShakeEvent>? _shakeSubscription;
   StreamSubscription<SosModel?>? _sosSubscription;
   StreamSubscription<bool>? _connectivitySub;
+  StreamSubscription? _haltNotifSubscription;
+  StreamSubscription<DatabaseEvent>? _chatNotifSubscription;
   SosModel? _activeSos;
   bool _isOnline = true;
+  bool _isChatScreenOpen = false;
+  Set<String> _knownHaltIds = {};
 
   final ShakeDetectorService _shakeDetector = ShakeDetectorService();
   bool _isShakeDialogShowing = false;
@@ -53,6 +60,9 @@ class _MapScreenState extends State<MapScreen> {
 
   Map<String, Map<String, dynamic>> _convoyLocations = {};
   Map<String, Map<String, dynamic>> _convoyMembers = {};
+
+  // Track previous member keys to detect joins/leaves for notifications
+  Set<String> _previousMemberKeys = {};
 
   final LatLng _defaultCenter = const LatLng(22.3039, 70.8022);
   final MapController _mapController = MapController();
@@ -251,6 +261,37 @@ class _MapScreenState extends State<MapScreen> {
               newMem[key.toString()] = Map<String, dynamic>.from(value);
             }
           });
+
+          // ── Notification: detect member joins/leaves ──
+          final currentKeys = newMem.keys.toSet();
+          final myUid = context.read<TripProvider>().userId;
+
+          if (_previousMemberKeys.isNotEmpty) {
+            // New members (joined)
+            final joined = currentKeys.difference(_previousMemberKeys);
+            for (final uid in joined) {
+              if (uid == myUid) continue; // don't notify about yourself
+              final data = newMem[uid];
+              final name = data?['nickname']?.toString() ?? 'Someone';
+              final vehicle = data?['vehicleType']?.toString() ?? 'Car';
+              NotificationService().showMemberJoinedNotification(
+                memberName: name,
+                vehicleType: vehicle,
+              );
+            }
+            // Left members
+            final left = _previousMemberKeys.difference(currentKeys);
+            for (final uid in left) {
+              if (uid == myUid) continue;
+              final oldData = _convoyMembers[uid];
+              final name = oldData?['nickname']?.toString() ?? 'A member';
+              NotificationService().showMemberLeftNotification(
+                memberName: name,
+              );
+            }
+          }
+          _previousMemberKeys = currentKeys;
+
           _convoyMembers = newMem;
         });
       }
@@ -258,7 +299,58 @@ class _MapScreenState extends State<MapScreen> {
 
     _sosSubscription = SosService().listenToActiveSos(tripCode).listen((sos) {
       if (mounted) {
+        // Fire notification for new SOS (not triggered by me)
+        final myUid = context.read<TripProvider>().userId;
+        if (sos != null && _activeSos?.sosId != sos.sosId && sos.triggeredBy != myUid) {
+          NotificationService().showSosNotification(
+            memberName: sos.triggerName,
+            reason: sos.reason.label,
+            note: sos.note,
+          );
+        }
         setState(() => _activeSos = sos);
+      }
+    });
+
+    // Listen to halt proposals for notifications
+    _haltNotifSubscription = HaltService()
+        .listenToHalts(tripCode)
+        .listen((halts) {
+      if (!mounted) return;
+      final myUid = context.read<TripProvider>().userId;
+      for (final halt in halts) {
+        if (!_knownHaltIds.contains(halt.haltId) && halt.proposedBy != myUid) {
+          NotificationService().showHaltNotification(
+            proposerName: halt.proposerName,
+            locationName: halt.locationName,
+            note: halt.note,
+          );
+        }
+      }
+      _knownHaltIds = halts.map((h) => h.haltId).toSet();
+    });
+
+    // Listen to new chat messages for notifications (onChildAdded)
+    _chatNotifSubscription = FirebaseDatabase.instance
+        .ref(chatPath(tripCode))
+        .orderByChild('timestamp')
+        .limitToLast(1)
+        .onChildAdded
+        .listen((event) {
+      if (!mounted || _isChatScreenOpen) return;
+      final val = event.snapshot.value;
+      if (val is Map<dynamic, dynamic>) {
+        final senderId = val['senderId']?.toString();
+        final myUid = context.read<TripProvider>().userId;
+        final type = val['type']?.toString();
+        if (senderId != null && senderId != myUid && senderId != 'system' && type != 'system') {
+          final senderName = val['senderName']?.toString() ?? 'Someone';
+          final text = val['text']?.toString() ?? '';
+          NotificationService().showChatNotification(
+            senderName: senderName,
+            message: text,
+          );
+        }
       }
     });
 
@@ -271,6 +363,8 @@ class _MapScreenState extends State<MapScreen> {
         final statusStr = val['status']?.toString();
         if (statusStr == TripStatus.ended.name && mounted && !_isSummaryDialogShowing) {
            _isSummaryDialogShowing = true;
+           // Fire notification for trip end
+           NotificationService().showTripEndedNotification();
            showDialog(
              context: context,
              barrierDismissible: false,
@@ -318,6 +412,8 @@ class _MapScreenState extends State<MapScreen> {
     _shakeSubscription?.cancel();
     _sosSubscription?.cancel();
     _connectivitySub?.cancel();
+    _haltNotifSubscription?.cancel();
+    _chatNotifSubscription?.cancel();
     _shakeDetector.dispose();
     super.dispose();
   }
@@ -429,10 +525,10 @@ class _MapScreenState extends State<MapScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
             Icon(Icons.flag_rounded, color: kPrimary),
             SizedBox(width: 8),
@@ -445,19 +541,19 @@ class _MapScreenState extends State<MapScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(placeName, style: const TextStyle(fontSize: 14)),
-            const SizedBox(height: 8),
+            Text(placeName, style: TextStyle(fontSize: 14)),
+            SizedBox(height: 8),
             Text(
               '${lat.toStringAsFixed(5)}, ${lng.toStringAsFixed(5)}',
-              style: const TextStyle(
-                  color: kTextTertiary, fontSize: 12),
+              style: TextStyle(
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 12),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text('Cancel'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -465,7 +561,7 @@ class _MapScreenState extends State<MapScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Set Destination'),
+            child: Text('Set Destination'),
           ),
         ],
       ),
@@ -615,28 +711,46 @@ class _MapScreenState extends State<MapScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: const BorderSide(color: kSurfaceBorder, width: 1),
+          side: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
         ),
         title: Text(
           isHost ? 'End Trip?' : 'Leave Convoy?',
-          style: const TextStyle(
-              color: kTextPrimary, fontWeight: FontWeight.bold),
+          style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), fontWeight: FontWeight.bold),
         ),
         content: Text(
           isHost
               ? 'This will end the trip for all members and save the trip history.'
               : 'You will leave the convoy. You can rejoin with the trip code as long as the trip is active.',
-          style: const TextStyle(color: kTextSecondary),
+          style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary)),
         ),
         actions: isHost
             ? [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel',
-                      style: TextStyle(color: kTextTertiary)),
+                  child: Text('Cancel',
+                      style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary))),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.pop(ctx);
+                    await _tripService.leaveTrip(
+                      tripCode: provider.tripCode!,
+                      userUid: provider.userId!,
+                    );
+                    await LocationService.stopTracking();
+                    await provider.clearTrip();
+                    if (context.mounted) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        FadeSlideRoute(page: const SplashScreen()),
+                        (route) => false,
+                      );
+                    }
+                  },
+                  child: Text('Leave', style: TextStyle(color: kPrimary)),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -649,15 +763,15 @@ class _MapScreenState extends State<MapScreen> {
                   },
                   style:
                       ElevatedButton.styleFrom(backgroundColor: kAlertRed),
-                  child: const Text('End Trip',
+                  child: Text('End Trip',
                       style: TextStyle(color: Colors.white)),
                 ),
               ]
             : [
                 TextButton(
                   onPressed: () => Navigator.pop(ctx),
-                  child: const Text('Cancel',
-                      style: TextStyle(color: kTextTertiary)),
+                  child: Text('Cancel',
+                      style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary))),
                 ),
                 ElevatedButton(
                   onPressed: () async {
@@ -678,7 +792,7 @@ class _MapScreenState extends State<MapScreen> {
                   },
                   style:
                       ElevatedButton.styleFrom(backgroundColor: kAlertRed),
-                  child: const Text('Leave',
+                  child: Text('Leave',
                       style: TextStyle(color: Colors.white)),
                 ),
               ],
@@ -699,7 +813,7 @@ class _MapScreenState extends State<MapScreen> {
   void _showMapTypePicker() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -710,16 +824,16 @@ class _MapScreenState extends State<MapScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Map Type',
                 style: TextStyle(
                   fontFamily: 'Thicccboi',
                   fontWeight: FontWeight.w800,
                   fontSize: 18,
-                  color: kTextPrimary,
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Row(
                 children: ['Default', 'Satellite', 'Terrain'].map((type) {
                   final isSelected = _mapType == type;
@@ -733,10 +847,10 @@ class _MapScreenState extends State<MapScreen> {
                         margin: const EdgeInsets.symmetric(horizontal: 4),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         decoration: BoxDecoration(
-                          color: isSelected ? kPrimaryLight : kSurface,
+                          color: isSelected ? kPrimaryLight : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: isSelected ? kPrimary : kSurfaceBorder,
+                            color: isSelected ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -749,17 +863,17 @@ class _MapScreenState extends State<MapScreen> {
                                   : type == 'Satellite'
                                       ? Icons.satellite_alt
                                       : Icons.terrain,
-                              color: isSelected ? kPrimary : kTextSecondary,
+                              color: isSelected ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                               size: 24,
                             ),
-                            const SizedBox(height: 6),
+                            SizedBox(height: 6),
                             Text(
                               type,
                               style: TextStyle(
                                 fontFamily: 'Thicccboi',
                                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                                 fontSize: 13,
-                                color: isSelected ? kPrimary : kTextSecondary,
+                                color: isSelected ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                               ),
                             ),
                           ],
@@ -780,6 +894,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TripProvider>();
+    final themeProvider = context.watch<ThemeProvider>();
     final tripCode = provider.tripCode;
     final myUserId = provider.userId ??
         FirebaseAuth.instance.currentUser?.uid ??
@@ -789,9 +904,21 @@ class _MapScreenState extends State<MapScreen> {
     final tileUrl = _tileUrls[_mapType]!;
     final subdomains = _mapType == 'Satellite' ? <String>[] : const ['a', 'b', 'c', 'd'];
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Please use the Leave/End button in the menu to exit.'),
+            backgroundColor: kAlertRed,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      },
+      child: Scaffold(
       key: _scaffoldKey,
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       drawer: ConvoyDrawer(
         myUserId: myUserId,
         nickname: provider.nickname,
@@ -832,7 +959,7 @@ class _MapScreenState extends State<MapScreen> {
             children: [
               // --- Dark Mode Color Filter for Night Driving ---
               ColorFiltered(
-                colorFilter: Theme.of(context).brightness == Brightness.dark
+                colorFilter: themeProvider.isMapNightMode
                     ? const ColorFilter.matrix(<double>[
                         -0.2126, -0.7152, -0.0722, 0, 255,
                         -0.2126, -0.7152, -0.0722, 0, 255,
@@ -867,12 +994,12 @@ class _MapScreenState extends State<MapScreen> {
                               color: kAlertRed,
                               borderRadius: BorderRadius.circular(6),
                             ),
-                            child: const Text(
+                            child: Text(
                               '📍',
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
-                          const Icon(Icons.place,
+                          Icon(Icons.place,
                               color: kAlertRed, size: 30),
                         ],
                       ),
@@ -912,7 +1039,7 @@ class _MapScreenState extends State<MapScreen> {
                       ],
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
@@ -942,7 +1069,7 @@ class _MapScreenState extends State<MapScreen> {
                   child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 decoration: BoxDecoration(
-                  color: kBackground.withValues(alpha: 0.92),
+                  color: Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.92),
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
@@ -951,19 +1078,19 @@ class _MapScreenState extends State<MapScreen> {
                       offset: const Offset(0, 2),
                     ),
                   ],
-                  border: Border.all(color: kSurfaceBorder, width: 1),
+                  border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
                 ),
                 child: Row(
                   children: [
                     // Menu / hamburger button
                     Container(
                       decoration: BoxDecoration(
-                        color: kSurface,
+                        color: Theme.of(context).colorScheme.surface,
                         shape: BoxShape.circle,
-                        border: Border.all(color: kSurfaceBorder, width: 1),
+                        border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.menu, color: kTextPrimary, size: 20),
+                        icon: Icon(Icons.menu, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), size: 20),
                         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                         constraints: const BoxConstraints.tightFor(
                             width: 40, height: 40),
@@ -976,29 +1103,29 @@ class _MapScreenState extends State<MapScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
+                          Text(
                             'Convoy',
                             style: TextStyle(
-                              color: kTextPrimary,
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                               fontFamily: 'Thicccboi',
                               fontWeight: FontWeight.w800,
                               fontSize: 17,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Container(
                                 width: 6,
                                 height: 6,
-                                decoration: const BoxDecoration(
+                                decoration: BoxDecoration(
                                   color: kOnlineGreen,
                                   shape: BoxShape.circle,
                                 ),
                               ),
-                              const SizedBox(width: 5),
-                              const Text(
+                              SizedBox(width: 5),
+                              Text(
                                 'ACTIVE SESSION',
                                 style: TextStyle(
                                   color: kOnlineGreen,
@@ -1027,7 +1154,7 @@ class _MapScreenState extends State<MapScreen> {
                             width: 1,
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           'Leave',
                           style: TextStyle(
                             color: kAlertRed,
@@ -1056,7 +1183,7 @@ class _MapScreenState extends State<MapScreen> {
                 _MapControlButton(
                   icon: Icons.local_fire_department,
                   color: kAlertRed,
-                  bgColor: kBackground,
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
                   borderColor: kAlertRed.withValues(alpha: 0.3),
                   onPressed: () {
                     final code = provider.tripCode;
@@ -1068,12 +1195,12 @@ class _MapScreenState extends State<MapScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 // Halt / hand-stop button
                 _MapControlButton(
                   icon: Icons.back_hand,
                   color: kHaltAmber,
-                  bgColor: kBackground,
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
                   borderColor: kHaltAmber.withValues(alpha: 0.3),
                   onPressed: () {
                     final code = provider.tripCode;
@@ -1085,21 +1212,23 @@ class _MapScreenState extends State<MapScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 // Chat / Broadcast Message button
                 _MapControlButton(
                   icon: Icons.chat_bubble_outline,
                   color: kPrimary,
-                  bgColor: kBackground,
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
                   borderColor: kPrimary.withValues(alpha: 0.3),
-                  onPressed: () {
+                  onPressed: () async {
                     final code = provider.tripCode;
                     if (code == null) return;
-                    Navigator.of(context).push(
+                    _isChatScreenOpen = true;
+                    await Navigator.of(context).push(
                       SlideUpRoute(
                         page: ChatScreen(tripCode: code),
                       ),
                     );
+                    _isChatScreenOpen = false;
                   },
                 ),
               ],
@@ -1115,18 +1244,18 @@ class _MapScreenState extends State<MapScreen> {
                 // Map type selector
                 _MapControlButton(
                   icon: Icons.layers_outlined,
-                  color: kTextPrimary,
-                  bgColor: kBackground,
-                  borderColor: kSurfaceBorder,
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
+                  borderColor: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                   onPressed: _showMapTypePicker,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 // Zoom In
                 _MapControlButton(
                   icon: Icons.add,
-                  color: kTextPrimary,
-                  bgColor: kBackground,
-                  borderColor: kSurfaceBorder,
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
+                  borderColor: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                   onPressed: () {
                     _mapController.move(
                       _mapController.camera.center,
@@ -1134,13 +1263,13 @@ class _MapScreenState extends State<MapScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 // Zoom Out
                 _MapControlButton(
                   icon: Icons.remove,
-                  color: kTextPrimary,
-                  bgColor: kBackground,
-                  borderColor: kSurfaceBorder,
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
+                  borderColor: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                   onPressed: () {
                     _mapController.move(
                       _mapController.camera.center,
@@ -1148,21 +1277,21 @@ class _MapScreenState extends State<MapScreen> {
                     );
                   },
                 ),
-                const SizedBox(height: 14),
+                SizedBox(height: 14),
                 // Center on Convoy
                 _MapControlButton(
                   icon: Icons.group,
                   color: kPrimary,
-                  bgColor: kBackground,
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
                   borderColor: kPrimary.withValues(alpha: 0.3),
                   onPressed: _centerOnConvoy,
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 // Center on Me
                 _MapControlButton(
                   icon: Icons.my_location,
                   color: kAccentBlue,
-                  bgColor: kBackground,
+                  bgColor: Theme.of(context).scaffoldBackgroundColor,
                   borderColor: kAccentBlue.withValues(alpha: 0.3),
                   onPressed: _centerOnMe,
                 ),
@@ -1255,9 +1384,9 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.warning_amber_rounded,
+                        Icon(Icons.warning_amber_rounded,
                             color: Colors.white, size: 24),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1265,7 +1394,7 @@ class _MapScreenState extends State<MapScreen> {
                             children: [
                               Text(
                                 'SOS: ${_activeSos!.triggerName.toUpperCase()}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
                                   fontFamily: 'Thicccboi',
                                   fontWeight: FontWeight.w900,
@@ -1291,7 +1420,7 @@ class _MapScreenState extends State<MapScreen> {
                             color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text(
+                          child: Text(
                             'VIEW',
                             style: TextStyle(
                               color: Colors.white,
@@ -1308,7 +1437,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -1316,14 +1445,14 @@ class _MapScreenState extends State<MapScreen> {
 class _MapControlButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onPressed;
-  final Color color;
+  final Color? color;
   final Color? bgColor;
   final Color? borderColor;
 
   const _MapControlButton({
     required this.icon,
     required this.onPressed,
-    this.color = kTextPrimary,
+    this.color,
     this.bgColor,
     this.borderColor,
   });
@@ -1332,10 +1461,10 @@ class _MapControlButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: bgColor ?? kBackground,
+        color: bgColor ?? Theme.of(context).scaffoldBackgroundColor,
         shape: BoxShape.circle,
         border: Border.all(
-          color: borderColor ?? kSurfaceBorder,
+          color: borderColor ?? (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
           width: 1,
         ),
         boxShadow: [
@@ -1409,12 +1538,12 @@ class _ShakeCountdownDialogState extends State<_ShakeCountdownDialog>
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // Pulsing SOS icon
           AnimatedBuilder(
@@ -1432,32 +1561,32 @@ class _ShakeCountdownDialogState extends State<_ShakeCountdownDialog>
                 color: kAlertRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.sos, size: 40, color: kAlertRed),
+              child: Icon(Icons.sos, size: 40, color: kAlertRed),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           Text(
             widget.title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w900,
               fontSize: 20,
-              color: kTextPrimary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             widget.subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: kTextSecondary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
               fontSize: 14,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // Countdown
           Container(
@@ -1471,7 +1600,7 @@ class _ShakeCountdownDialogState extends State<_ShakeCountdownDialog>
             child: Center(
               child: Text(
                 '$_secondsLeft',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Thicccboi',
                   fontWeight: FontWeight.w900,
                   fontSize: 28,
@@ -1480,15 +1609,15 @@ class _ShakeCountdownDialogState extends State<_ShakeCountdownDialog>
               ),
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'seconds until SOS is sent',
             style: TextStyle(
-              color: kTextTertiary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               fontSize: 13,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Cancel button
           SizedBox(
@@ -1497,13 +1626,13 @@ class _ShakeCountdownDialogState extends State<_ShakeCountdownDialog>
             child: OutlinedButton(
               onPressed: widget.onCancel,
               style: OutlinedButton.styleFrom(
-                foregroundColor: kTextPrimary,
-                side: const BorderSide(color: kSurfaceBorder, width: 2),
+                foregroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
+                side: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: const Text(
+              child: Text(
                 "I'm OK — Cancel",
                 style: TextStyle(
                   fontFamily: 'Thicccboi',
@@ -1571,7 +1700,7 @@ class _DestinationSearchDialogState extends State<_DestinationSearchDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       insetPadding: const EdgeInsets.all(20),
       child: Padding(
@@ -1580,7 +1709,7 @@ class _DestinationSearchDialogState extends State<_DestinationSearchDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
                 Icon(Icons.search_rounded, color: kPrimary),
                 SizedBox(width: 8),
@@ -1590,41 +1719,41 @@ class _DestinationSearchDialogState extends State<_DestinationSearchDialog> {
                     fontFamily: 'Thicccboi',
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
-                    color: kTextPrimary,
+                    color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: 14),
             TextField(
               controller: _controller,
               onChanged: _onSearchChanged,
               autofocus: true,
               decoration: InputDecoration(
                 hintText: 'Search for a place...',
-                hintStyle: const TextStyle(color: kTextTertiary),
+                hintStyle: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary)),
                 prefixIcon:
-                    const Icon(Icons.place_outlined, color: kTextTertiary),
+                    Icon(Icons.place_outlined, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary)),
                 filled: true,
-                fillColor: kSurface,
+                fillColor: Theme.of(context).colorScheme.surface,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: kSurfaceBorder),
+                  borderSide: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: kSurfaceBorder),
+                  borderSide: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: kPrimary, width: 2),
+                  borderSide: BorderSide(color: kPrimary, width: 2),
                 ),
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
 
             if (_isSearching)
-              const Center(
+              Center(
                 child: Padding(
                   padding: EdgeInsets.all(20),
                   child: CircularProgressIndicator(color: kPrimary),
@@ -1639,7 +1768,7 @@ class _DestinationSearchDialogState extends State<_DestinationSearchDialog> {
                   shrinkWrap: true,
                   itemCount: _results.length,
                   separatorBuilder: (_, _) =>
-                      const Divider(color: kSurfaceBorder, height: 1),
+                      Divider(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), height: 1),
                   itemBuilder: (context, index) {
                     final place = _results[index];
                     // Short display name
@@ -1655,12 +1784,12 @@ class _DestinationSearchDialogState extends State<_DestinationSearchDialog> {
                           color: kPrimaryLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.place,
+                        child: Icon(Icons.place,
                             color: kPrimary, size: 20),
                       ),
                       title: Text(
                         shortName,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1677,12 +1806,12 @@ class _DestinationSearchDialogState extends State<_DestinationSearchDialog> {
             if (!_isSearching &&
                 _results.isEmpty &&
                 _controller.text.length >= 3)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(20),
                 child: Center(
                   child: Text(
                     'No places found.',
-                    style: TextStyle(color: kTextTertiary),
+                    style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary)),
                   ),
                 ),
               ),

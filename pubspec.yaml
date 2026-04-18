@@ -62,6 +62,9 @@ dependencies:
   permission_handler: ^12.0.1
   battery_plus: 6.1.0
   intl: 0.19.0
+  flutter_local_notifications: ^19.0.0
+  package_info_plus: ^8.1.2
+
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +76,6 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
-  flutter_native_splash: ^2.4.7
   change_app_package_name: ^1.1.0
 
 # For information on the generic Dart part of this file, see the
@@ -146,7 +148,7 @@ flutter:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false
-  image_path: "assets/images/logo_square.png"
+  image_path: "assets/images/logo.png"
   min_sdk_android: 24
   # Fix for adaptive icon squash
   adaptive_icon_background: "#ffffff"
@@ -157,14 +159,3 @@ flutter_launcher_icons:
     background_color: "#ffffff"
     theme_color: "#ffffff"
 
-flutter_native_splash:
-  color: "#ffffff"
-  image: "assets/images/logo_square.png"
-  # Fix for squash/distortion
-  android_gravity: center
-  ios_content_mode: center
-  fullscreen: false
-  android_12:
-    image: "assets/images/logo_square.png"
-    icon_background_color: "#ffffff"
-    color: "#ffffff"

@@ -159,18 +159,18 @@ class _PermissionsOnboardingScreenState
       context: context,
       barrierDismissible: true,
       builder: (context) => AlertDialog(
-        backgroundColor: kSurface,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         title: Text(title,
-            style: const TextStyle(
-                color: kTextPrimary,
+            style: TextStyle(
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                 fontSize: 20,
                 fontWeight: FontWeight.bold)),
         content: Text(content,
-            style: const TextStyle(color: kTextSecondary, fontSize: 15)),
+            style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), fontSize: 15)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: kTextTertiary)),
+            child: Text('Cancel', style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary))),
           ),
           ElevatedButton(
             onPressed: onPressed,
@@ -190,7 +190,7 @@ class _PermissionsOnboardingScreenState
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 48.0),
@@ -206,7 +206,7 @@ class _PermissionsOnboardingScreenState
                   color: kPrimaryLight.withValues(alpha: 0.5),
                   shape: BoxShape.circle,
                 ),
-                child: const Center(
+                child: Center(
                   child: Icon(
                     Icons.security_rounded, // Shield/Location mix could be used
                     size: 70,
@@ -214,14 +214,14 @@ class _PermissionsOnboardingScreenState
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               // Title
               Text(
                 "Background Safety",
                 textAlign: TextAlign.center,
                 style: theme.textTheme.displayMedium?.copyWith(fontSize: 28),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               // Description
               Text(
                 "To keep your convoy safe and coordinated, we need access to your location even when your phone is locked or you're using other apps.\n\n"
@@ -230,7 +230,7 @@ class _PermissionsOnboardingScreenState
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 16,
                   height: 1.5,
-                  color: kTextSecondary,
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                 ),
               ),
               const Spacer(),
@@ -249,7 +249,7 @@ class _PermissionsOnboardingScreenState
                     elevation: 0,
                   ),
                   child: _isChecking
-                      ? const SizedBox(
+                      ? SizedBox(
                           width: 24,
                           height: 24,
                           child: CircularProgressIndicator(

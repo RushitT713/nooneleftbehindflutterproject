@@ -159,20 +159,20 @@ class _SosScreenState extends State<SosScreen>
     final myUserId = provider.userId ?? '';
 
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: kTextPrimary),
+          icon: Icon(Icons.close, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'SOS Center',
           style: TextStyle(
             fontFamily: 'Thicccboi',
             fontWeight: FontWeight.w900,
-            color: kTextPrimary,
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             fontSize: 20,
           ),
         ),
@@ -180,10 +180,10 @@ class _SosScreenState extends State<SosScreen>
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Cancel',
               style: TextStyle(
-                color: kTextSecondary,
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                 fontFamily: 'Thicccboi',
                 fontWeight: FontWeight.w700,
               ),
@@ -221,27 +221,27 @@ class _SosScreenState extends State<SosScreen>
                 color: kAlertRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.sos, size: 50, color: kAlertRed),
+              child: Icon(Icons.sos, size: 50, color: kAlertRed),
             ),
           ),
-          const SizedBox(height: 32),
-          const Text(
+          SizedBox(height: 32),
+          Text(
             'Sending SOS Alert...',
             style: TextStyle(
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w900,
               fontSize: 22,
-              color: kTextPrimary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             ),
           ),
-          const SizedBox(height: 12),
-          const Text(
+          SizedBox(height: 12),
+          Text(
             'Your convoy will be notified immediately.\nYour location is being shared.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: kTextSecondary, fontSize: 15),
+            style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), fontSize: 15),
           ),
-          const SizedBox(height: 32),
-          const SizedBox(
+          SizedBox(height: 32),
+          SizedBox(
             width: 24,
             height: 24,
             child: CircularProgressIndicator(
@@ -266,7 +266,7 @@ class _SosScreenState extends State<SosScreen>
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
 
           // Pulsing SOS icon
           AnimatedBuilder(
@@ -284,42 +284,42 @@ class _SosScreenState extends State<SosScreen>
                 color: kAlertRed.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.sos, size: 50, color: kAlertRed),
+              child: Icon(Icons.sos, size: 50, color: kAlertRed),
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Alert Title
           Text(
             '${sos.reason.emoji} ${sos.reason.label}',
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w900,
               fontSize: 26,
               color: kAlertRed,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Text(
             'Triggered by ${sos.triggerName}',
-            style: const TextStyle(
-              color: kTextSecondary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
               fontSize: 15,
             ),
           ),
           if (sos.note != null && sos.note!.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               '"${sos.note}"',
-              style: const TextStyle(
-                color: kTextSecondary,
+              style: TextStyle(
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                 fontStyle: FontStyle.italic,
                 fontSize: 14,
               ),
             ),
           ],
 
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
 
           // Status card
           Container(
@@ -339,13 +339,13 @@ class _SosScreenState extends State<SosScreen>
                     Container(
                       width: 10,
                       height: 10,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: kAlertRed,
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Text(
+                    SizedBox(width: 8),
+                    Text(
                       'ACTIVE ALERT',
                       style: TextStyle(
                         fontFamily: 'Thicccboi',
@@ -358,14 +358,14 @@ class _SosScreenState extends State<SosScreen>
                     const Spacer(),
                     Text(
                       '$ackCount acknowledged',
-                      style: const TextStyle(
-                        color: kTextSecondary,
+                      style: TextStyle(
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                         fontSize: 13,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 // Acknowledgers
                 if (ackCount > 0)
                   Wrap(
@@ -382,12 +382,12 @@ class _SosScreenState extends State<SosScreen>
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.check_circle,
+                                  Icon(Icons.check_circle,
                                       color: kSuccessGreen, size: 14),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: 4),
                                   Text(
                                     uid.substring(0, uid.length > 6 ? 6 : uid.length),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       color: kSuccessGreen,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -402,7 +402,7 @@ class _SosScreenState extends State<SosScreen>
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
 
           // Action buttons
           if (isMyAlert)
@@ -411,8 +411,8 @@ class _SosScreenState extends State<SosScreen>
               height: 52,
               child: ElevatedButton.icon(
                 onPressed: _onResolveSos,
-                icon: const Icon(Icons.check_circle, size: 20),
-                label: const Text(
+                icon: Icon(Icons.check_circle, size: 20),
+                label: Text(
                   'Resolve — I\'m OK',
                   style: TextStyle(
                     fontFamily: 'Thicccboi',
@@ -436,8 +436,8 @@ class _SosScreenState extends State<SosScreen>
               height: 52,
               child: ElevatedButton.icon(
                 onPressed: _onAcknowledgeSos,
-                icon: const Icon(Icons.visibility, size: 20),
-                label: const Text(
+                icon: Icon(Icons.visibility, size: 20),
+                label: Text(
                   'Acknowledge — I See It',
                   style: TextStyle(
                     fontFamily: 'Thicccboi',
@@ -465,7 +465,7 @@ class _SosScreenState extends State<SosScreen>
                 border: Border.all(
                     color: kSuccessGreen.withValues(alpha: 0.3)),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.check_circle, color: kSuccessGreen, size: 20),
@@ -483,7 +483,7 @@ class _SosScreenState extends State<SosScreen>
               ),
             ),
 
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
         ],
       ),
     );
@@ -496,7 +496,7 @@ class _SosScreenState extends State<SosScreen>
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
 
           // Warning icon
           Container(
@@ -506,37 +506,37 @@ class _SosScreenState extends State<SosScreen>
               color: kAlertRed.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.warning_rounded,
               size: 42,
               color: kAlertRed,
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // Title
-          const Text(
+          Text(
             "What's the\nemergency?",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w900,
               fontSize: 28,
-              color: kTextPrimary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
               height: 1.2,
             ),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Select a category to alert your convoy\nimmediately. Your location will be shared.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: kTextSecondary,
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
               fontSize: 14,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
 
           // Reason Grid (2x3)
           GridView.count(
@@ -555,74 +555,74 @@ class _SosScreenState extends State<SosScreen>
               );
             }).toList(),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // Optional Note
           if (_selectedReason != null) ...[
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: kSurface,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: kSurfaceBorder),
+                border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
               ),
               child: TextField(
                 controller: _noteController,
                 maxLines: 2,
-                style: const TextStyle(
-                  color: kTextPrimary,
+                style: TextStyle(
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                   fontSize: 14,
                 ),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Add a note (optional)...',
-                  hintStyle: TextStyle(color: kTextTertiary),
+                  hintStyle: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary)),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
           ],
 
           // Convoy Status Card
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: kSurface,
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: kSurfaceBorder),
+              border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
             ),
             child: Row(
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Convoy Status',
                       style: TextStyle(
                         fontFamily: 'Thicccboi',
                         fontWeight: FontWeight.w800,
                         fontSize: 16,
-                        color: kTextPrimary,
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Row(
                       children: [
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             color: kSuccessGreen,
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 6),
-                        const Text(
+                        SizedBox(width: 6),
+                        Text(
                           'All Secure',
                           style: TextStyle(
-                            color: kTextSecondary,
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                             fontSize: 13,
                           ),
                         ),
@@ -636,13 +636,13 @@ class _SosScreenState extends State<SosScreen>
                     Container(
                       width: 8,
                       height: 8,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: kSuccessGreen,
                         shape: BoxShape.circle,
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    const Text(
+                    SizedBox(width: 4),
+                    Text(
                       'LIVE',
                       style: TextStyle(
                         color: kSuccessGreen,
@@ -657,7 +657,7 @@ class _SosScreenState extends State<SosScreen>
             ),
           ),
 
-          const SizedBox(height: 28),
+          SizedBox(height: 28),
 
           // Send SOS Button
           SizedBox(
@@ -668,8 +668,8 @@ class _SosScreenState extends State<SosScreen>
               style: ElevatedButton.styleFrom(
                 backgroundColor: kAlertRed,
                 foregroundColor: Colors.white,
-                disabledBackgroundColor: kSurfaceBorder,
-                disabledForegroundColor: kTextTertiary,
+                disabledBackgroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
+                disabledForegroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -678,13 +678,13 @@ class _SosScreenState extends State<SosScreen>
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.sos, size: 22),
-                  const SizedBox(width: 8),
+                  Icon(Icons.sos, size: 22),
+                  SizedBox(width: 8),
                   Text(
                     _selectedReason != null
                         ? 'Send ${_selectedReason!.label} Alert'
                         : 'Select a category',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Thicccboi',
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
@@ -694,7 +694,7 @@ class _SosScreenState extends State<SosScreen>
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
         ],
       ),
     );
@@ -721,10 +721,10 @@ class _SosReasonCard extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         decoration: BoxDecoration(
-          color: isSelected ? kAlertRed.withValues(alpha: 0.08) : kSurface,
+          color: isSelected ? kAlertRed.withValues(alpha: 0.08) : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? kAlertRed : kSurfaceBorder,
+            color: isSelected ? kAlertRed : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -734,26 +734,26 @@ class _SosReasonCard extends StatelessWidget {
             Icon(
               reason.icon,
               size: 32,
-              color: isSelected ? kAlertRed : kTextSecondary,
+              color: isSelected ? kAlertRed : (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 10),
             Text(
               reason.label,
               style: TextStyle(
                 fontFamily: 'Thicccboi',
                 fontWeight: FontWeight.w800,
                 fontSize: 14,
-                color: isSelected ? kAlertRed : kTextPrimary,
+                color: isSelected ? kAlertRed : (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2),
             Text(
               _getSubtitle(reason),
               style: TextStyle(
                 fontSize: 11,
                 color: isSelected
                     ? kAlertRed.withValues(alpha: 0.7)
-                    : kTextTertiary,
+                    : (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               ),
             ),
           ],

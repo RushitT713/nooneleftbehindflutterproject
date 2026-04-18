@@ -259,14 +259,14 @@ class _FaceCropScreenState extends State<FaceCropScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kBackground,
-        foregroundColor: kTextPrimary,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
         title: Text(_isProcessing ? 'Processing...' : 'Result'),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: Icon(Icons.close),
           onPressed: () => Navigator.pop(context),
         ),
         elevation: 0,
@@ -301,7 +301,7 @@ class _FaceCropScreenState extends State<FaceCropScreen>
                 ),
               ),
             ),
-            const SizedBox(height: 36),
+            SizedBox(height: 36),
 
             // Progress bar
             ClipRRect(
@@ -309,21 +309,21 @@ class _FaceCropScreenState extends State<FaceCropScreen>
               child: LinearProgressIndicator(
                 value: _progress,
                 minHeight: 6,
-                backgroundColor: kSurfaceBorder,
+                backgroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                 valueColor: const AlwaysStoppedAnimation<Color>(kPrimary),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
 
             Text(
               _statusMessage,
-              style: const TextStyle(
-                  color: kTextPrimary, fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), fontSize: 16, fontWeight: FontWeight.w500),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               '${(_progress * 100).round()}%',
-              style: const TextStyle(color: kTextTertiary, fontSize: 13),
+              style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 13),
             ),
           ],
         ),
@@ -340,22 +340,22 @@ class _FaceCropScreenState extends State<FaceCropScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.face_retouching_off,
+              Icon(Icons.face_retouching_off,
                   color: Colors.redAccent, size: 56),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               Text(
                 _statusMessage,
-                style: const TextStyle(color: kTextSecondary, fontSize: 15),
+                style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), fontSize: 15),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
               ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                label: const Text('Pick Another Photo',
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                label: Text('Pick Another Photo',
                     style: TextStyle(color: Colors.white)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: kTextSecondary,
+                  backgroundColor: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -370,11 +370,11 @@ class _FaceCropScreenState extends State<FaceCropScreen>
 
     return Column(
       children: [
-        const SizedBox(height: 12),
-        const Text(
+        SizedBox(height: 12),
+        Text(
           'Your face cutout is ready!',
           style: TextStyle(
-              color: kTextSecondary, fontSize: 14, fontWeight: FontWeight.w500),
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), fontSize: 14, fontWeight: FontWeight.w500),
         ),
 
         // Result preview with checkerboard
@@ -383,9 +383,9 @@ class _FaceCropScreenState extends State<FaceCropScreen>
             child: Container(
               margin: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: kSurface,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: kSurfaceBorder),
+                border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                 boxShadow: [
                   BoxShadow(
                     color: kPrimary.withValues(alpha: 0.08),
@@ -420,16 +420,16 @@ class _FaceCropScreenState extends State<FaceCropScreen>
         // Bottom actions
         Container(
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-          color: kSurface,
+          color: Theme.of(context).colorScheme.surface,
           child: Row(
             children: [
               OutlinedButton.icon(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.refresh, color: kTextSecondary),
-                label: const Text('Retake',
-                    style: TextStyle(color: kTextSecondary)),
+                icon: Icon(Icons.refresh, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary)),
+                label: Text('Retake',
+                    style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary))),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: kSurfaceBorder),
+                  side: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -439,8 +439,8 @@ class _FaceCropScreenState extends State<FaceCropScreen>
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: () => Navigator.pop(context, _resultFile),
-                icon: const Icon(Icons.check, color: Colors.white),
-                label: const Text(
+                icon: Icon(Icons.check, color: Colors.white),
+                label: Text(
                   'Use This',
                   style: TextStyle(
                       color: Colors.white,

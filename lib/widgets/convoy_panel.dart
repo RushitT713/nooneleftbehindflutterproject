@@ -46,9 +46,16 @@ class ConvoyPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get my speed
+    // Get my heading
     final myLoc = locations[myUserId];
-    final mySpeed = (myLoc?['speed'] ?? 0.0).toDouble();
+    final myHeading = (myLoc?['heading'] ?? -1.0).toDouble();
+
+    String headingText = '--';
+    if (myHeading >= 0) {
+      const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+      final index = (((myHeading + 22.5) % 360) / 45).floor();
+      headingText = directions[index];
+    }
 
     // Build nearby members list (exclude self)
     final nearby = members.entries.where((e) => e.key != myUserId).toList();
@@ -67,10 +74,10 @@ class ConvoyPanel extends StatelessWidget {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: kBackground,
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: const Border(
-              top: BorderSide(color: kSurfaceBorder, width: 1),
+            border: Border(
+              top: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
             ),
             boxShadow: [
               BoxShadow(
@@ -91,7 +98,7 @@ class ConvoyPanel extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: kSurfaceBorder,
+                    color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -103,55 +110,47 @@ class ConvoyPanel extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: kSurface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: kSurfaceBorder, width: 1),
+                    border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
                   ),
                   child: Row(
                     children: [
-                      // Speedometer icon
+                      // Compass icon
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: kPrimaryLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(Icons.speed, color: kPrimary, size: 20),
+                        child: Icon(Icons.explore_rounded, color: kPrimary, size: 20),
                       ),
-                      const SizedBox(width: 12),
-                      // Speed info
+                      SizedBox(width: 12),
+                      // Heading info
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'CURRENT SPEED',
+                          Text(
+                            'HEADING',
                             style: TextStyle(
-                              color: kTextTertiary,
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 1,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          SizedBox(height: 2),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.baseline,
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                '${mySpeed.toStringAsFixed(0)}',
-                                style: const TextStyle(
-                                  color: kTextPrimary,
+                                headingText,
+                                style: TextStyle(
+                                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                                   fontSize: 24,
                                   fontFamily: 'Thicccboi',
                                   fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              const SizedBox(width: 3),
-                              const Text(
-                                'km/h',
-                                style: TextStyle(
-                                  color: kTextSecondary,
-                                  fontSize: 13,
                                 ),
                               ),
                             ],
@@ -164,7 +163,7 @@ class ConvoyPanel extends StatelessWidget {
                         height: 40,
                         width: 1,
                         margin: const EdgeInsets.symmetric(horizontal: 16),
-                        color: kSurfaceBorder,
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                       ),
 
                       // Trip Code
@@ -172,20 +171,20 @@ class ConvoyPanel extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
+                            Text(
                               'TRIP CODE',
                               style: TextStyle(
-                                color: kTextTertiary,
+                                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1,
                               ),
                             ),
-                            const SizedBox(height: 2),
+                            SizedBox(height: 2),
                             Text(
                               tripCode ?? '------',
-                              style: const TextStyle(
-                                color: kTextPrimary,
+                              style: TextStyle(
+                                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                                 fontSize: 20,
                                 fontFamily: 'Thicccboi',
                                 fontWeight: FontWeight.w800,
@@ -203,7 +202,7 @@ class ConvoyPanel extends StatelessWidget {
                             Clipboard.setData(ClipboardData(text: tripCode!));
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Trip code copied!'),
+                                content: Text('Trip code copied!'),
                                 backgroundColor: kPrimary,
                                 duration: const Duration(seconds: 1),
                                 behavior: SnackBarBehavior.floating,
@@ -220,7 +219,7 @@ class ConvoyPanel extends StatelessWidget {
                             color: kPrimaryLight,
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          child: const Icon(Icons.qr_code_2, color: kPrimary, size: 22),
+                          child: Icon(Icons.qr_code_2, color: kPrimary, size: 22),
                         ),
                       ),
                     ],
@@ -235,9 +234,9 @@ class ConvoyPanel extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: kSurface,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: kSurfaceBorder, width: 1),
+                      border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
                     ),
                     child: Row(
                       children: [
@@ -247,17 +246,17 @@ class ConvoyPanel extends StatelessWidget {
                             color: kPrimaryLight,
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Icon(Icons.near_me_rounded, color: kPrimary),
+                          child: Icon(Icons.near_me_rounded, color: kPrimary),
                         ),
-                        const SizedBox(width: 14),
+                        SizedBox(width: 14),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 destination!.name,
-                                style: const TextStyle(
-                                  color: kTextPrimary,
+                                style: TextStyle(
+                                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                                   fontFamily: 'Thicccboi',
                                   fontWeight: FontWeight.w800,
                                   fontSize: 14,
@@ -266,14 +265,14 @@ class ConvoyPanel extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               if (isFetchingRoute)
-                                const Text(
+                                Text(
                                   'Calculating route...',
-                                  style: TextStyle(color: kTextTertiary, fontSize: 12),
+                                  style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 12),
                                 )
                               else if (routeResult != null)
                                 Text(
                                   '${routeResult!.distanceText} • ${routeResult!.durationText}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: kPrimaryDark,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12),
@@ -281,7 +280,7 @@ class ConvoyPanel extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: kPrimary,
@@ -292,7 +291,7 @@ class ConvoyPanel extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: onNavigateDestination,
-                          child: const Text(
+                          child: Text(
                             'GO',
                             style: TextStyle(
                                 fontFamily: 'Thicccboi',
@@ -306,12 +305,12 @@ class ConvoyPanel extends StatelessWidget {
                 ),
 
               // ── NEARBY CONVOY Header ───────────────────
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(20, 16, 20, 8),
                 child: Text(
                   'NEARBY CONVOY',
                   style: TextStyle(
-                    color: kTextTertiary,
+                    color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                     fontSize: 11,
                     fontFamily: 'Thicccboi',
                     fontWeight: FontWeight.w700,
@@ -322,11 +321,11 @@ class ConvoyPanel extends StatelessWidget {
 
               // ── Member Cards ───────────────────────────
               if (nearby.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Text(
                     'No other convoy members yet.',
-                    style: TextStyle(color: kTextTertiary, fontSize: 13),
+                    style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 13),
                   ),
                 )
               else
@@ -340,7 +339,14 @@ class ConvoyPanel extends StatelessWidget {
 
                   // Location + distance
                   final locData = locations[uid];
-                  final speed = (locData?['speed'] ?? 0.0).toDouble();
+                  final heading = (locData?['heading'] ?? -1.0).toDouble();
+
+                  String memberHeadingText = '';
+                  if (heading >= 0) {
+                    const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+                    final index = (((heading + 22.5) % 360) / 45).floor();
+                    memberHeadingText = 'Heading ${directions[index]}';
+                  }
 
                   String distText = '';
                   String compass = '';
@@ -372,10 +378,8 @@ class ConvoyPanel extends StatelessWidget {
 
                   // Status line
                   String statusLine;
-                  if (speed > 1) {
-                    statusLine = '${speed.toStringAsFixed(0)} km/h';
-                  } else if (isOnline) {
-                    statusLine = 'Stationary';
+                  if (isOnline) {
+                    statusLine = memberHeadingText.isNotEmpty ? memberHeadingText : 'Online';
                   } else {
                     statusLine = 'Offline';
                   }
@@ -413,6 +417,7 @@ class ConvoyPanel extends StatelessWidget {
                       vehicleType: vehicleType,
                       photoUrl: photoUrl,
                       isOnline: isOnline,
+                      isHostMember: data['role']?.toString() == MemberRole.host.name,
                       statusLine: statusLine,
                       distText: distText,
                       compass: compass,
@@ -423,7 +428,7 @@ class ConvoyPanel extends StatelessWidget {
                   );
                 }),
 
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
             ],
           ),
         );
@@ -453,6 +458,7 @@ class _NearbyMemberCard extends StatelessWidget {
   final String vehicleType;
   final String photoUrl;
   final bool isOnline;
+  final bool isHostMember;
   final String statusLine;
   final String distText;
   final String compass;
@@ -465,6 +471,7 @@ class _NearbyMemberCard extends StatelessWidget {
     required this.vehicleType,
     required this.photoUrl,
     required this.isOnline,
+    this.isHostMember = false,
     required this.statusLine,
     required this.distText,
     required this.compass,
@@ -490,9 +497,9 @@ class _NearbyMemberCard extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: kSurface,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: kSurfaceBorder, width: 1),
+        border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
       ),
       child: Row(
         children: [
@@ -504,14 +511,14 @@ class _NearbyMemberCard extends StatelessWidget {
                       radius: 20,
                       backgroundImage: NetworkImage(photoUrl),
                       onBackgroundImageError: (e, _) {},
-                      backgroundColor: kSurface,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
                     )
                   : CircleAvatar(
                       radius: 20,
                       backgroundColor: kPrimaryLight,
                       child: Text(
                         _initials,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: kPrimary,
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -527,13 +534,13 @@ class _NearbyMemberCard extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isOnline ? kOnlineGreen : kOfflineGrey,
                     shape: BoxShape.circle,
-                    border: Border.all(color: kBackground, width: 1.5),
+                    border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 1.5),
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
 
           // Name + status
           Expanded(
@@ -545,21 +552,48 @@ class _NearbyMemberCard extends StatelessWidget {
                     Flexible(
                       child: Text(
                         "$nickname's ${vehicleInfo.name}",
-                        style: const TextStyle(
-                          color: kTextPrimary,
+                        style: TextStyle(
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                           fontWeight: FontWeight.w600,
                           fontSize: 14,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    if (isHostMember) ...[
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: kWarningAmber.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: kWarningAmber.withValues(alpha: 0.4)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star_rounded, color: kWarningAmber, size: 12),
+                            const SizedBox(width: 2),
+                            Text(
+                              'Host',
+                              style: TextStyle(
+                                color: kWarningAmber,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: 'Thicccboi',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ],
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   statusLine,
                   style: TextStyle(
-                    color: isOnline ? kTextTertiary : kOfflineGrey,
+                    color: isOnline ? (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary) : kOfflineGrey,
                     fontSize: 12,
                   ),
                 ),
@@ -577,17 +611,17 @@ class _NearbyMemberCard extends StatelessWidget {
                   children: [
                     Text(
                       distText,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: kPrimary,
                         fontWeight: FontWeight.bold,
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     if (bearingAngle != null)
                       Transform.rotate(
                         angle: bearingAngle! - (math.pi / 2),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_forward,
                           color: kPrimary,
                           size: 14,
@@ -598,7 +632,7 @@ class _NearbyMemberCard extends StatelessWidget {
                 if (compass.isNotEmpty)
                   Text(
                     compass,
-                    style: const TextStyle(color: kTextTertiary, fontSize: 11),
+                    style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 11),
                   ),
               ],
             ),
@@ -619,7 +653,7 @@ class _NearbyMemberCard extends StatelessWidget {
                     color: kAccentBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.navigation_rounded,
                     color: kAccentBlue,
                     size: 18,

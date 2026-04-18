@@ -160,19 +160,67 @@ class TripService {
   // LEAVE / DISBAND
   // ──────────────────────────────────────────
 
-  /// Non-host member leaves the trip.
+  /// Leaves the trip. If user is host, transfers host automatically.
+  /// If user is the last member, ends the trip.
   Future<void> leaveTrip({
     required String tripCode,
     required String userUid,
   }) async {
-    // Remove member details and live location entirely from the convoy
+    try {
+      final membersEvent = await _db.child(membersPath(tripCode)).once();
+      final metadataEvent = await _db.child(metadataPath(tripCode)).once();
+
+      if (membersEvent.snapshot.exists && metadataEvent.snapshot.exists) {
+        final members = membersEvent.snapshot.value as Map<dynamic, dynamic>;
+        final meta = metadataEvent.snapshot.value as Map<dynamic, dynamic>;
+
+        // Save history for the member leaving
+        if (members.containsKey(userUid)) {
+          final memberNames = members.values
+              .map((m) => m['nickname']?.toString() ?? 'Unknown')
+              .toList();
+          final mData = members[userUid] as Map<dynamic, dynamic>? ?? {};
+          
+          await _saveUserHistory(
+            userUid: userUid,
+            tripCode: tripCode,
+            members: members,
+            meta: meta,
+            mData: mData,
+            memberNames: memberNames,
+          );
+        }
+
+        if (members.length <= 1) {
+          await endTrip(tripCode: tripCode);
+          return;
+        }
+
+        final mData = members[userUid];
+        if (mData is Map) {
+          final isHost = mData['role']?.toString() == MemberRole.host.name;
+          if (isHost) {
+            final otherMembers = members.keys.where((k) => k != userUid).toList();
+            if (otherMembers.isNotEmpty) {
+              final newHostUid = otherMembers.first;
+              await transferHost(
+                tripCode: tripCode,
+                currentHostUid: userUid,
+                newHostUid: newHostUid,
+              );
+            }
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('Error handling history/host transfer during leaveTrip: $e');
+    }
+
     await _db.child(memberPath(tripCode, userUid)).remove();
     await _db.child(liveLocationPath(tripCode, userUid)).remove();
   }
 
   /// Host formally ends the trip.
-  /// This calculates stats, saves history for all members, 
-  /// and sets status to 'ended'.
   Future<void> endTrip({required String tripCode}) async {
     try {
       final metadataEvent = await _db.child(metadataPath(tripCode)).once();
@@ -182,12 +230,6 @@ class TripService {
         final meta = metadataEvent.snapshot.value as Map<dynamic, dynamic>;
         final members = membersEvent.snapshot.value as Map<dynamic, dynamic>;
         
-        final createdAt = meta['createdAt'] as int? ?? DateTime.now().millisecondsSinceEpoch;
-        final durationSecs = (DateTime.now().millisecondsSinceEpoch - createdAt) ~/ 1000;
-        final dest = meta['destination'] as Map<dynamic, dynamic>?;
-        final destName = dest?['name']?.toString();
-        final endedAt = DateTime.now().millisecondsSinceEpoch;
-
         final memberNames = members.values
             .map((m) => m['nickname']?.toString() ?? 'Unknown')
             .toList();
@@ -195,6 +237,13 @@ class TripService {
         final updates = <String, dynamic>{};
         for (final uid in members.keys) {
           final mData = members[uid] as Map<dynamic, dynamic>? ?? {};
+          
+          // Use individual path updates or batching
+          // For simplicity in this refactor, we keep the batch update logic for endTrip
+          final createdAt = meta['createdAt'] as int? ?? DateTime.now().millisecondsSinceEpoch;
+          final durationSecs = (DateTime.now().millisecondsSinceEpoch - createdAt) ~/ 1000;
+          final dest = meta['destination'] as Map<dynamic, dynamic>?;
+          final destName = dest?['name']?.toString();
           final isHost = mData['role']?.toString() == MemberRole.host.name;
           final vehicleType = mData['vehicleType']?.toString() ?? 'Car';
 
@@ -207,7 +256,7 @@ class TripService {
             'wasHost': isHost,
             'vehicleType': vehicleType,
             'memberNames': memberNames,
-            'endedAt': endedAt,
+            'endedAt': DateTime.now().millisecondsSinceEpoch,
           };
 
           final newId = _db.child('users/$uid/history').push().key;
@@ -216,7 +265,6 @@ class TripService {
           }
         }
         
-        // Mark trip as ended
         updates['${metadataPath(tripCode)}/status'] = TripStatus.ended.name;
         updates['${metadataPath(tripCode)}/endedAt'] = ServerValue.timestamp;
         
@@ -226,6 +274,41 @@ class TripService {
       }
     } catch (e) {
       debugPrint('Error saving trip history during endTrip: $e');
+    }
+  }
+
+  /// Internal helper to save a single user's trip history entry.
+  Future<void> _saveUserHistory({
+    required String userUid,
+    required String tripCode,
+    required Map<dynamic, dynamic> members,
+    required Map<dynamic, dynamic> meta,
+    required Map<dynamic, dynamic> mData,
+    required List<String> memberNames,
+  }) async {
+    try {
+      final createdAt = meta['createdAt'] as int? ?? DateTime.now().millisecondsSinceEpoch;
+      final durationSecs = (DateTime.now().millisecondsSinceEpoch - createdAt) ~/ 1000;
+      final dest = meta['destination'] as Map<dynamic, dynamic>?;
+      final destName = dest?['name']?.toString();
+      final isHost = mData['role']?.toString() == MemberRole.host.name;
+      final vehicleType = mData['vehicleType']?.toString() ?? 'Car';
+
+      final historyData = {
+        'tripCode': tripCode,
+        'destinationName': destName,
+        'timestamp': createdAt,
+        'durationSeconds': durationSecs,
+        'memberCount': members.length,
+        'wasHost': isHost,
+        'vehicleType': vehicleType,
+        'memberNames': memberNames,
+        'endedAt': DateTime.now().millisecondsSinceEpoch,
+      };
+
+      await _db.child('users/$userUid/history').push().set(historyData);
+    } catch (e) {
+      debugPrint('Error in _saveUserHistory: $e');
     }
   }
 

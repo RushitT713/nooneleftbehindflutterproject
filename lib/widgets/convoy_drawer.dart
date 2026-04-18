@@ -69,7 +69,7 @@ class ConvoyDrawer extends StatelessWidget {
       });
 
     return Drawer(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.horizontal(right: Radius.circular(24)),
       ),
@@ -79,7 +79,7 @@ class ConvoyDrawer extends StatelessWidget {
             // ── PROFILE HEADER ────────────────────────
             _buildProfileHeader(context, vehicleInfo),
 
-            const Divider(color: kSurfaceBorder, height: 1),
+            Divider(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), height: 1),
 
             // ── SCROLLABLE CONTENT ────────────────────
             Expanded(
@@ -89,50 +89,55 @@ class ConvoyDrawer extends StatelessWidget {
                   // ── TRIP CODE SECTION ─────────────────
                   _buildTripCodeSection(context),
 
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(color: kSurfaceBorder, height: 24),
+                    child: Divider(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), height: 24),
                   ),
 
                   // ── CONVOY ROSTER ─────────────────────
-                  _buildSectionHeader('CONVOY ROSTER', '${members.length}'),
-                  const SizedBox(height: 4),
+                  _buildSectionHeader(context, 'CONVOY ROSTER', '${members.length}'),
+                  SizedBox(height: 4),
                   ...sortedMembers.map((entry) =>
                       _buildMemberTile(context, entry.key, entry.value)),
 
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(color: kSurfaceBorder, height: 24),
+                    child: Divider(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), height: 24),
                   ),
 
                   // ── PARKING MODE ──────────────────────
                   _buildParkingToggle(context),
 
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(color: kSurfaceBorder, height: 24),
+                    child: Divider(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), height: 24),
                   ),
 
                   // ── DESTINATION ─────────────────────────
                   _buildDestinationSection(context),
 
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(color: kSurfaceBorder, height: 24),
+                    child: Divider(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), height: 24),
                   ),
 
                   // ── SHAKE SENSITIVITY ─────────────────
                   _buildShakeSensitivity(context),
 
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(color: kSurfaceBorder, height: 24),
+                    child: Divider(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), height: 24),
                   ),
 
-                  // ── NIGHT MODE ─────────────────────────
+                  // ── MAP NIGHT MODE ─────────────────────────
                   _buildNightModeToggle(context),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: 16),
+
+                  // ── APP DARK MODE ─────────────────────────
+                  _buildAppThemeToggle(context),
+
+                  SizedBox(height: 24),
                 ],
               ),
             ),
@@ -156,21 +161,21 @@ class ConvoyDrawer extends StatelessWidget {
                   radius: 28,
                   backgroundImage: NetworkImage(photoUrl!),
                   onBackgroundImageError: (e, _) {},
-                  backgroundColor: kSurface,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
                 )
               : CircleAvatar(
                   radius: 28,
                   backgroundColor: kPrimaryLight,
                   child: Text(
                     initials,
-                    style: const TextStyle(
+                    style: TextStyle(
                       color: kPrimary,
                       fontWeight: FontWeight.w800,
                       fontSize: 20,
                     ),
                   ),
                 ),
-          const SizedBox(width: 14),
+          SizedBox(width: 14),
 
           // Name + Vehicle
           Expanded(
@@ -179,26 +184,26 @@ class ConvoyDrawer extends StatelessWidget {
               children: [
                 Text(
                   nickname ?? 'Unknown',
-                  style: const TextStyle(
-                    color: kTextPrimary,
+                  style: TextStyle(
+                    color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                     fontFamily: 'Thicccboi',
                     fontWeight: FontWeight.w800,
                     fontSize: 18,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 3),
                 Row(
                   children: [
                     Text(
                       vehicleInfo.emoji,
-                      style: const TextStyle(fontSize: 14),
+                      style: TextStyle(fontSize: 14),
                     ),
-                    const SizedBox(width: 5),
+                    SizedBox(width: 5),
                     Text(
                       'Driving a ${vehicleInfo.name}',
-                      style: const TextStyle(
-                        color: kTextSecondary,
+                      style: TextStyle(
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                       ),
@@ -217,7 +222,7 @@ class ConvoyDrawer extends StatelessWidget {
                 color: kPrimaryLight,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'HOST',
                 style: TextStyle(
                   color: kPrimary,
@@ -239,23 +244,23 @@ class ConvoyDrawer extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: kSurface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: kSurfaceBorder, width: 1),
+          border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'TRIP CODE',
               style: TextStyle(
-                color: kTextTertiary,
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Row(
               children: [
                 Expanded(
@@ -264,8 +269,8 @@ class ConvoyDrawer extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       tripCode ?? '------',
-                      style: const TextStyle(
-                        color: kTextPrimary,
+                      style: TextStyle(
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                         fontSize: 24,
                         fontFamily: 'Thicccboi',
                         fontWeight: FontWeight.w900,
@@ -274,7 +279,7 @@ class ConvoyDrawer extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 // Copy button
                 _SmallActionButton(
                   icon: Icons.copy_rounded,
@@ -284,7 +289,7 @@ class ConvoyDrawer extends StatelessWidget {
                       Clipboard.setData(ClipboardData(text: tripCode!));
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('Trip code copied!'),
+                          content: Text('Trip code copied!'),
                           backgroundColor: kPrimary,
                           duration: const Duration(seconds: 1),
                           behavior: SnackBarBehavior.floating,
@@ -296,7 +301,7 @@ class ConvoyDrawer extends StatelessWidget {
                     }
                   },
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 // Share button
                 _SmallActionButton(
                   icon: Icons.share_rounded,
@@ -321,22 +326,22 @@ class ConvoyDrawer extends StatelessWidget {
   }
 
   // ── Section Header ────────────────────────────────
-  Widget _buildSectionHeader(String title, String badge) {
+  Widget _buildSectionHeader(BuildContext context, String title, String badge) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: kTextTertiary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               fontSize: 11,
               fontFamily: 'Thicccboi',
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
             decoration: BoxDecoration(
@@ -345,7 +350,7 @@ class ConvoyDrawer extends StatelessWidget {
             ),
             child: Text(
               badge,
-              style: const TextStyle(
+              style: TextStyle(
                 color: kPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
@@ -373,6 +378,8 @@ class ConvoyDrawer extends StatelessWidget {
     );
 
     final initials = _getInitials(name);
+
+    final isHostMember = data['role']?.toString() == MemberRole.host.name;
 
     return Material(
       color: Colors.transparent,
@@ -416,14 +423,14 @@ class ConvoyDrawer extends StatelessWidget {
                           radius: 18,
                           backgroundImage: NetworkImage(photo),
                           onBackgroundImageError: (e, _) {},
-                          backgroundColor: kSurface,
+                          backgroundColor: Theme.of(context).colorScheme.surface,
                         )
                       : CircleAvatar(
                           radius: 18,
                           backgroundColor: kPrimaryLight,
                           child: Text(
                             initials,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: kPrimary,
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
@@ -439,13 +446,13 @@ class ConvoyDrawer extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: isOnline ? kOnlineGreen : kOfflineGrey,
                         shape: BoxShape.circle,
-                        border: Border.all(color: kBackground, width: 1.5),
+                        border: Border.all(color: Theme.of(context).scaffoldBackgroundColor, width: 1.5),
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
 
               // Name + vehicle
               Expanded(
@@ -458,7 +465,7 @@ class ConvoyDrawer extends StatelessWidget {
                           child: Text(
                             isMe ? '$name (You)' : name,
                             style: TextStyle(
-                              color: kTextPrimary,
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                               fontWeight:
                                   isMe ? FontWeight.w800 : FontWeight.w600,
                               fontSize: 14,
@@ -466,12 +473,39 @@ class ConvoyDrawer extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (isHostMember) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                            decoration: BoxDecoration(
+                              color: kWarningAmber.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: kWarningAmber.withValues(alpha: 0.4)),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.star_rounded, color: kWarningAmber, size: 10),
+                                const SizedBox(width: 2),
+                                Text(
+                                  'Host',
+                                  style: TextStyle(
+                                    color: kWarningAmber,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w700,
+                                    fontFamily: 'Thicccboi',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     Text(
                       '${vehicleInfo.emoji} ${vehicleInfo.name}',
-                      style: const TextStyle(
-                        color: kTextTertiary,
+                      style: TextStyle(
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                         fontSize: 12,
                       ),
                     ),
@@ -480,7 +514,7 @@ class ConvoyDrawer extends StatelessWidget {
               ),
 
               if (!hasLocation)
-                const Text(
+                Text(
                   'No GPS',
                   style: TextStyle(color: kOfflineGrey, fontSize: 11),
                 ),
@@ -500,12 +534,12 @@ class ConvoyDrawer extends StatelessWidget {
         decoration: BoxDecoration(
           color: isParkingMode
               ? kHaltAmber.withValues(alpha: 0.08)
-              : kSurface,
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isParkingMode
                 ? kHaltAmber.withValues(alpha: 0.3)
-                : kSurfaceBorder,
+                : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
             width: 1,
           ),
         ),
@@ -516,7 +550,7 @@ class ConvoyDrawer extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isParkingMode
                     ? kHaltAmber.withValues(alpha: 0.15)
-                    : kSurfaceBorder.withValues(alpha: 0.5),
+                    : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder).withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -524,27 +558,27 @@ class ConvoyDrawer extends StatelessWidget {
                 style: TextStyle(fontSize: isParkingMode ? 20 : 18),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Parking Mode',
                     style: TextStyle(
-                      color: kTextPrimary,
+                      color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                       fontFamily: 'Thicccboi',
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Text(
                     isParkingMode
                         ? 'GPS updates paused — saving battery'
                         : 'Turn on when parked to save battery',
-                    style: const TextStyle(
-                      color: kTextTertiary,
+                    style: TextStyle(
+                      color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                       fontSize: 11,
                     ),
                   ),
@@ -575,14 +609,14 @@ class ConvoyDrawer extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
-              Icon(Icons.flag_rounded, color: kTextSecondary, size: 18),
+              Icon(Icons.flag_rounded, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), size: 18),
               SizedBox(width: 8),
               Text(
                 'DESTINATION',
                 style: TextStyle(
-                  color: kTextTertiary,
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                   fontSize: 11,
                   fontFamily: 'Thicccboi',
                   fontWeight: FontWeight.w700,
@@ -591,14 +625,14 @@ class ConvoyDrawer extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: 10),
 
           if (destination != null) ...[
             // Show current destination
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: kPrimaryLight,
+                color: Theme.of(context).brightness == Brightness.dark ? kPrimary.withValues(alpha: 0.15) : kPrimaryLight,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: kPrimary.withValues(alpha: 0.3)),
               ),
@@ -607,13 +641,13 @@ class ConvoyDrawer extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.place, color: kPrimary, size: 18),
-                      const SizedBox(width: 8),
+                      Icon(Icons.place, color: kPrimary, size: 18),
+                      SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           destination!.name,
-                          style: const TextStyle(
-                            color: kTextPrimary,
+                          style: TextStyle(
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                             fontFamily: 'Thicccboi',
                             fontWeight: FontWeight.w700,
                             fontSize: 14,
@@ -624,7 +658,7 @@ class ConvoyDrawer extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 10),
                   Row(
                     children: [
                       // Navigate button
@@ -652,7 +686,7 @@ class ConvoyDrawer extends StatelessWidget {
                               color: kPrimary,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.navigation_rounded,
@@ -674,7 +708,7 @@ class ConvoyDrawer extends StatelessWidget {
 
                       // Clear button (Host only)
                       if (isHost && onClearDestination != null) ...[
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         GestureDetector(
                           onTap: onClearDestination,
                           child: Container(
@@ -683,7 +717,7 @@ class ConvoyDrawer extends StatelessWidget {
                               color: kAlertRed.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Icon(Icons.close,
+                            child: Icon(Icons.close,
                                 color: kAlertRed, size: 18),
                           ),
                         ),
@@ -705,14 +739,14 @@ class ConvoyDrawer extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
-                    color: kSurface,
+                    color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: kSurfaceBorder,
+                      color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                       width: 1,
                     ),
                   ),
-                  child: const Column(
+                  child: Column(
                     children: [
                       Icon(Icons.add_location_alt_rounded,
                           color: kPrimary, size: 24),
@@ -730,7 +764,7 @@ class ConvoyDrawer extends StatelessWidget {
                       Text(
                         'Long-press on map or search here',
                         style: TextStyle(
-                          color: kTextTertiary,
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                           fontSize: 11,
                         ),
                       ),
@@ -739,9 +773,9 @@ class ConvoyDrawer extends StatelessWidget {
                 ),
               )
             else
-              const Text(
+              Text(
                 'No destination set by the host.',
-                style: TextStyle(color: kTextTertiary, fontSize: 12),
+                style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 12),
               ),
           ],
         ],
@@ -758,14 +792,14 @@ class ConvoyDrawer extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
+              Row(
                 children: [
-                  Icon(Icons.vibration, color: kTextSecondary, size: 18),
+                  Icon(Icons.vibration, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), size: 18),
                   SizedBox(width: 8),
                   Text(
                     'SOS SHAKE SENSITIVITY',
                     style: TextStyle(
-                      color: kTextTertiary,
+                      color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                       fontSize: 11,
                       fontFamily: 'Thicccboi',
                       fontWeight: FontWeight.w700,
@@ -774,7 +808,7 @@ class ConvoyDrawer extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               Row(
                 children: ShakeSensitivity.values.map((level) {
                   final isSelected = shakeDetector.sensitivity == level;
@@ -788,10 +822,12 @@ class ConvoyDrawer extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(horizontal: 3),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: isSelected ? kPrimaryLight : kSurface,
+                          color: isSelected 
+                              ? (Theme.of(context).brightness == Brightness.dark ? kPrimary.withValues(alpha: 0.15) : kPrimaryLight) 
+                              : Theme.of(context).colorScheme.surface,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
-                            color: isSelected ? kPrimary : kSurfaceBorder,
+                            color: isSelected ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                             width: isSelected ? 2 : 1,
                           ),
                         ),
@@ -805,10 +841,10 @@ class ConvoyDrawer extends StatelessWidget {
                                       ? Icons.tune
                                       : Icons.bolt,
                               color:
-                                  isSelected ? kPrimary : kTextTertiary,
+                                  isSelected ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                               size: 20,
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               level.label,
                               style: TextStyle(
@@ -819,7 +855,7 @@ class ConvoyDrawer extends StatelessWidget {
                                 fontSize: 12,
                                 color: isSelected
                                     ? kPrimary
-                                    : kTextSecondary,
+                                    : (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                               ),
                             ),
                           ],
@@ -829,15 +865,15 @@ class ConvoyDrawer extends StatelessWidget {
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text(
                 shakeDetector.sensitivity == ShakeSensitivity.low
                     ? 'Harder to trigger — less false alarms'
                     : shakeDetector.sensitivity == ShakeSensitivity.high
                         ? 'Easier to trigger — more responsive'
                         : 'Balanced — recommended setting',
-                style: const TextStyle(
-                  color: kTextTertiary,
+                style: TextStyle(
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                   fontSize: 11,
                   fontStyle: FontStyle.italic,
                 ),
@@ -849,11 +885,96 @@ class ConvoyDrawer extends StatelessWidget {
     );
   }
 
-  // ── Night Mode (Dark Mode) Toggle ─────────────────────────
+  // ── Map Night Mode Toggle ─────────────────────────
   Widget _buildNightModeToggle(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
-        final isDarkMode = themeProvider.themeMode == ThemeMode.dark;
+        final isMapNightMode = themeProvider.isMapNightMode;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: isMapNightMode
+                  ? kPrimary.withValues(alpha: 0.08)
+                  : Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: isMapNightMode
+                    ? kPrimary.withValues(alpha: 0.3)
+                    : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isMapNightMode
+                        ? kPrimary.withValues(alpha: 0.15)
+                        : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder).withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    isMapNightMode ? Icons.map : Icons.map_outlined,
+                    color: isMapNightMode ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
+                    size: 20,
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Night Mode',
+                        style: TextStyle(
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
+                          fontFamily: 'Thicccboi',
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                        ),
+                      ),
+                      SizedBox(height: 2),
+                      Text(
+                        isMapNightMode
+                            ? 'Dark map for night driving'
+                            : 'Enable dark map filter',
+                        style: TextStyle(
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch.adaptive(
+                  value: isMapNightMode,
+                  onChanged: (value) {
+                    themeProvider.toggleMapNightMode();
+                  },
+                  activeTrackColor: kPrimary.withValues(alpha: 0.3),
+                  thumbColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
+                      return kPrimary;
+                    }
+                    return null;
+                  }),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ── App Dark Mode Toggle ─────────────────────────
+  Widget _buildAppThemeToggle(BuildContext context) {
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        final isDarkMode = themeProvider.isDark;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Container(
@@ -861,12 +982,12 @@ class ConvoyDrawer extends StatelessWidget {
             decoration: BoxDecoration(
               color: isDarkMode
                   ? kPrimary.withValues(alpha: 0.08)
-                  : kSurface,
+                  : Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: isDarkMode
                     ? kPrimary.withValues(alpha: 0.3)
-                    : kSurfaceBorder,
+                    : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                 width: 1,
               ),
             ),
@@ -877,36 +998,36 @@ class ConvoyDrawer extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isDarkMode
                         ? kPrimary.withValues(alpha: 0.15)
-                        : kSurfaceBorder.withValues(alpha: 0.5),
+                        : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder).withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
                     isDarkMode ? Icons.dark_mode : Icons.dark_mode_outlined,
-                    color: isDarkMode ? kPrimary : kTextSecondary,
+                    color: isDarkMode ? kPrimary : (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                     size: 20,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Night Mode',
+                      Text(
+                        'Dark Mode',
                         style: TextStyle(
-                          color: kTextPrimary,
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                           fontFamily: 'Thicccboi',
                           fontWeight: FontWeight.w700,
                           fontSize: 14,
                         ),
                       ),
-                      const SizedBox(height: 2),
+                      SizedBox(height: 2),
                       Text(
                         isDarkMode
-                            ? 'Dark UI for night driving'
-                            : 'Enable for night driving',
-                        style: const TextStyle(
-                          color: kTextTertiary,
+                            ? 'Using Navy Blue dark theme'
+                            : 'Enable dark theme',
+                        style: TextStyle(
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                           fontSize: 11,
                         ),
                       ),
@@ -916,7 +1037,7 @@ class ConvoyDrawer extends StatelessWidget {
                 Switch.adaptive(
                   value: isDarkMode,
                   onChanged: (value) {
-                    themeProvider.toggle();
+                    themeProvider.toggleAppTheme();
                   },
                   activeTrackColor: kPrimary.withValues(alpha: 0.3),
                   thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -968,10 +1089,10 @@ class _SmallActionButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: kPrimary, size: 14),
-            const SizedBox(width: 4),
+            SizedBox(width: 4),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 color: kPrimary,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,

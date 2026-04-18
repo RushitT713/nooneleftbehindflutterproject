@@ -12,6 +12,7 @@ import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'services/battery_service.dart';
 import 'services/location_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +31,11 @@ void main() async {
   // Initialize Battery monitor
   final batteryService = BatteryService();
   await batteryService.init();
+
+  // Initialize Notification service
+  final notificationService = NotificationService();
+  await notificationService.init();
+  await notificationService.requestPermission();
 
   // Initial battery update for already running service
   LocationService.updateBatteryLevel(batteryService.isLowBattery);

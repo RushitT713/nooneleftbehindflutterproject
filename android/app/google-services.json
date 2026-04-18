@@ -8,6 +8,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:861666413246:android:8d557ae9969d318d946cef",
+        "android_client_info": {
+          "package_name": "com.marwadiuniversity.nolbapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBi3p-edwYdN8FsQ-kvR2O9pgE1dCkHsDs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:861666413246:android:ee9a475cf1d78cfa946cef",
         "android_client_info": {
           "package_name": "com.nooneleftbehind.app"

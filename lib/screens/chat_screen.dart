@@ -198,29 +198,29 @@ class _ChatScreenState extends State<ChatScreen> {
     final memberCount = provider.memberCount;
 
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: kTextPrimary),
+          icon: Icon(Icons.arrow_back, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary)),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
           children: [
-            const Text(
+            Text(
               'Convoy Chat',
               style: TextStyle(
                 fontFamily: 'Thicccboi',
                 fontWeight: FontWeight.w900,
-                color: kTextPrimary,
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                 fontSize: 18,
               ),
             ),
             Text(
               '$memberCount member${memberCount == 1 ? '' : 's'} • ${_messages.length} messages',
-              style: const TextStyle(
-                color: kTextTertiary,
+              style: TextStyle(
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
               ),
@@ -230,7 +230,7 @@ class _ChatScreenState extends State<ChatScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.people_outline, color: kAccentBlue),
+            icon: Icon(Icons.people_outline, color: kAccentBlue),
             onPressed: () {},
           ),
         ],
@@ -238,14 +238,14 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           // Divider
-          Container(height: 1, color: kSurfaceBorder),
+          Container(height: 1, color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
           
           if (!_isOnline)
             Container(
               width: double.infinity,
               color: kWarningAmber.withValues(alpha: 0.1),
               padding: const EdgeInsets.symmetric(vertical: 6),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                    Icon(Icons.wifi_off, color: kWarningAmber, size: 14),
@@ -266,23 +266,23 @@ class _ChatScreenState extends State<ChatScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(Icons.chat_bubble_outline,
-                            color: kTextTertiary.withValues(alpha: 0.4),
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary).withValues(alpha: 0.4),
                             size: 48),
-                        const SizedBox(height: 12),
-                        const Text(
+                        SizedBox(height: 12),
+                        Text(
                           'No messages yet',
                           style: TextStyle(
-                            color: kTextTertiary,
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                             fontFamily: 'Thicccboi',
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        const Text(
+                        SizedBox(height: 4),
+                        Text(
                           'Send a message or tap a quick preset!',
                           style: TextStyle(
-                            color: kTextTertiary,
+                            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                             fontSize: 13,
                           ),
                         ),
@@ -308,7 +308,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: _quickPresets.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              separatorBuilder: (_, _) => SizedBox(width: 8),
               itemBuilder: (context, index) {
                 final preset = _quickPresets[index];
                 return GestureDetector(
@@ -317,16 +317,16 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: kSurface,
+                      color: Theme.of(context).colorScheme.surface,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: kSurfaceBorder),
+                      border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(preset.emoji,
-                            style: const TextStyle(fontSize: 16)),
-                        const SizedBox(width: 6),
+                            style: TextStyle(fontSize: 16)),
+                        SizedBox(width: 6),
                         Text(
                           preset.label,
                           style: TextStyle(
@@ -343,14 +343,14 @@ class _ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
 
           // Input Bar
           Container(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
             decoration: BoxDecoration(
-              color: kBackground,
-              border: Border(top: BorderSide(color: kSurfaceBorder)),
+              color: Theme.of(context).scaffoldBackgroundColor,
+              border: Border(top: BorderSide(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder))),
             ),
             child: SafeArea(
               top: false,
@@ -363,15 +363,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: kSurface,
+                        color: Theme.of(context).colorScheme.surface,
                         shape: BoxShape.circle,
-                        border: Border.all(color: kSurfaceBorder),
+                        border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                       ),
-                      child: const Icon(Icons.add,
-                          color: kTextSecondary, size: 22),
+                      child: Icon(Icons.add,
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), size: 22),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
 
                   // Text Field
                   Expanded(
@@ -379,20 +379,20 @@ class _ChatScreenState extends State<ChatScreen> {
                       height: 42,
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: kSurface,
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.circular(22),
-                        border: Border.all(color: kSurfaceBorder),
+                        border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                       ),
                       child: TextField(
                         controller: _messageController,
-                        style: const TextStyle(
-                          color: kTextPrimary,
+                        style: TextStyle(
+                          color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                           fontSize: 14,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Message convoy...',
                           hintStyle: TextStyle(
-                              color: kTextTertiary, fontSize: 14),
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 14),
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding:
@@ -402,7 +402,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
 
                   // Mic icon
                   GestureDetector(
@@ -416,10 +416,10 @@ class _ChatScreenState extends State<ChatScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.mic,
-                          color: _isRecording ? kAlertRed : kTextTertiary, size: _isRecording ? 28 : 24),
+                          color: _isRecording ? kAlertRed : (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), size: _isRecording ? 28 : 24),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
 
                   // Send button
                   GestureDetector(
@@ -427,11 +427,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: Container(
                       width: 42,
                       height: 42,
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: kAccentBlue,
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.send,
+                      child: Icon(Icons.send,
                           color: Colors.white, size: 20),
                     ),
                   ),
@@ -445,18 +445,18 @@ class _ChatScreenState extends State<ChatScreen> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               width: double.infinity,
-              color: kSurface,
+              color: Theme.of(context).colorScheme.surface,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     width: 14, height: 14,
                     child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(kAccentBlue)),
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     _uploadStatusText ?? 'Uploading...', 
-                    style: const TextStyle(color: kTextTertiary, fontSize: 12, fontWeight: FontWeight.w500)
+                    style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 12, fontWeight: FontWeight.w500)
                   )
                 ],
               )
@@ -488,14 +488,14 @@ class _ChatScreenState extends State<ChatScreen> {
           padding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
           decoration: BoxDecoration(
-            color: kSurface,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: kSurfaceBorder),
+            border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
           ),
           child: Text(
             msg.text,
-            style: const TextStyle(
-              color: kTextTertiary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
@@ -521,14 +521,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: 200,
                 height: 200,
                 fit: BoxFit.cover,
-                loadingBuilder: (_, child, prog) => prog == null ? child : const SizedBox(width: 200, height: 200, child: Center(child: CircularProgressIndicator())),
-                errorBuilder: (_, _, _) => const SizedBox(width: 200, height: 200, child: Center(child: Icon(Icons.broken_image, color: Colors.white54))),
+                loadingBuilder: (_, child, prog) => prog == null ? child : SizedBox(width: 200, height: 200, child: Center(child: CircularProgressIndicator())),
+                errorBuilder: (_, _, _) => SizedBox(width: 200, height: 200, child: Center(child: Icon(Icons.broken_image, color: Colors.white54))),
               ),
             ),
           ] else if (msg.type == ChatMessageType.audio && msg.mediaUrl != null) ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: kAccentBlue,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(18),
@@ -546,7 +546,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ] else ...[
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: kAccentBlue,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(18),
@@ -557,7 +557,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               child: Text(
                 msg.text,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,
                   height: 1.4,
@@ -565,24 +565,24 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ],
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               if (msg.timestamp == 0) ...[
-                const Icon(Icons.access_time, size: 10, color: kTextTertiary),
-                const SizedBox(width: 4),
+                Icon(Icons.access_time, size: 10, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary)),
+                SizedBox(width: 4),
               ],
               Text(
                 timeStr,
-                style: const TextStyle(
-                  color: kTextTertiary,
+                style: TextStyle(
+                  color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                   fontSize: 11,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
         ],
       ),
     );
@@ -598,13 +598,13 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Text(
             msg.senderName,
-            style: const TextStyle(
-              color: kTextTertiary,
+            style: TextStyle(
+              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -614,7 +614,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 backgroundColor: kPrimaryLight,
                 child: Text(
                   msg.senderName.isNotEmpty ? msg.senderName[0] : '?',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: kPrimary,
                     fontFamily: 'Thicccboi',
                     fontWeight: FontWeight.w800,
@@ -622,7 +622,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Flexible(
                 child: () {
                   if (msg.type == ChatMessageType.image && msg.mediaUrl != null) {
@@ -633,15 +633,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 200,
                         height: 200,
                         fit: BoxFit.cover,
-                        loadingBuilder: (_, child, prog) => prog == null ? child : const SizedBox(width: 200, height: 200, child: Center(child: CircularProgressIndicator())),
-                        errorBuilder: (_, _, _) => const SizedBox(width: 200, height: 200, child: Center(child: Icon(Icons.broken_image, color: kTextTertiary))),
+                        loadingBuilder: (_, child, prog) => prog == null ? child : SizedBox(width: 200, height: 200, child: Center(child: CircularProgressIndicator())),
+                        errorBuilder: (_, _, _) => SizedBox(width: 200, height: 200, child: Center(child: Icon(Icons.broken_image, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary)))),
                       ),
                     );
                   } else {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: const BoxDecoration(
-                        color: kSurface,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(18),
                           topRight: Radius.circular(18),
@@ -656,8 +656,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               isMe: false)
                           : Text(
                               msg.text,
-                              style: const TextStyle(
-                                color: kTextPrimary,
+                              style: TextStyle(
+                                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                                 fontSize: 14,
                                 height: 1.4,
                               ),
@@ -672,13 +672,13 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.only(left: 40, top: 4),
             child: Text(
               timeStr,
-              style: const TextStyle(
-                color: kTextTertiary,
+              style: TextStyle(
+                color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
                 fontSize: 11,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
         ],
       ),
     );
@@ -801,12 +801,12 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
             size: 32,
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Container(
           width: 80,
           height: 4,
           decoration: BoxDecoration(
-            color: widget.isMe ? Colors.white38 : kSurfaceBorder,
+            color: widget.isMe ? Colors.white38 : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
             borderRadius: BorderRadius.circular(2),
           ),
           alignment: Alignment.centerLeft,
@@ -821,11 +821,11 @@ class _AudioPlayerWidgetState extends State<_AudioPlayerWidget> {
             ),
           ),
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: 8),
         Text(
           displayStr,
           style: TextStyle(
-            color: widget.isMe ? Colors.white : kTextTertiary,
+            color: widget.isMe ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary),
             fontSize: 12,
             fontFamily: 'Thicccboi',
             fontFeatures: const [FontFeature.tabularFigures()],

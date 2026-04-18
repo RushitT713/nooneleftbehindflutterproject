@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/trip_model.dart';
 import '../models/member_model.dart';
 import '../services/trip_service.dart';
+import '../services/notification_service.dart';
 import '../constants.dart';
 
 /// Result of attempting to restore a saved trip session.
@@ -93,6 +94,9 @@ class TripProvider extends ChangeNotifier {
   Future<void> clearTrip() async {
     _stopListening();
 
+    // Cancel any lingering notifications
+    NotificationService().cancelAll();
+
     _userId = null;
     _tripCode = null;
     _nickname = null;
@@ -134,16 +138,29 @@ class TripProvider extends ChangeNotifier {
       debugPrint('TripProvider members stream error: $e');
     });
 
-    // Listen to metadata (for status/expiry changes)
+    // Listen to metadata (for status/expiry changes AND host transfers)
     _metadataSubscription = _tripService
         .listenToMetadata(_tripCode!)
-        .listen((tripModel) {
+        .listen((tripModel) async {
       _tripModel = tripModel;
       if (tripModel != null) {
         if (tripModel.isExpired || tripModel.status == TripStatus.disbanded) {
           // Trip has expired or been disbanded abruptly
           clearTrip();
+          return;
         }
+
+        // ── Reactive host transfer detection ──
+        // If the hostId in RTDB now matches this user, promote them to host.
+        // If it no longer matches, demote them.
+        if (_userId != null) {
+          final newIsHost = tripModel.hostId == _userId;
+          if (newIsHost != _isHost) {
+            _isHost = newIsHost;
+            await _saveToPrefs(); // persist the change
+          }
+        }
+
         // If status == TripStatus.ended, we leave it active in provider.
         // The UI (MapScreen) will react to this status change, show the
         // TripSummaryDialog, and then call clearTrip() when dismissed.

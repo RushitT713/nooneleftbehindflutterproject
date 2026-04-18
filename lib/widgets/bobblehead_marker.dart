@@ -71,7 +71,7 @@ class BobbleheadMarker extends StatelessWidget {
               'assets/images/$vehicleName.png',
               width: 80,
               errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.directions_car, size: 60, color: kTextPrimary),
+                  Icon(Icons.directions_car, size: 60, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary)),
             ),
           ),
         ),
@@ -99,10 +99,10 @@ class BobbleheadMarker extends StatelessWidget {
             decoration: BoxDecoration(
               color: isMe
                   ? kPrimary
-                  : kBackground.withValues(alpha: 0.95),
+                  : Theme.of(context).scaffoldBackgroundColor.withValues(alpha: 0.95),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: isMe ? kPrimaryDark : kSurfaceBorder,
+                color: isMe ? kPrimaryDark : (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder),
                 width: 1,
               ),
               boxShadow: [
@@ -118,7 +118,7 @@ class BobbleheadMarker extends StatelessWidget {
                 Text(
                   isMe ? 'You' : nickname,
                   style: TextStyle(
-                    color: isMe ? Colors.white : kTextPrimary,
+                    color: isMe ? Colors.white : (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                   ),
@@ -128,7 +128,7 @@ class BobbleheadMarker extends StatelessWidget {
                     compassDirection != null
                         ? '$distanceText · $compassDirection'
                         : distanceText,
-                    style: const TextStyle(color: kTextSecondary, fontSize: 9),
+                    style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), fontSize: 9),
                   ),
               ],
             ),
@@ -158,7 +158,7 @@ class BobbleheadMarker extends StatelessWidget {
       child: Center(
         child: Text(
           _initials,
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
             fontSize: 24,

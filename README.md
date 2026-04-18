@@ -1,7 +1,7 @@
 # 🚗 NoOneLeftBehind — Convoy Travel Companion
 
 <p align="center">
-  <img src="assets/images/logo_square.png" width="150" alt="NoOneLeftBehind Logo"/>
+  <img src="assets/images/logo.png" width="200" alt="NoOneLeftBehind Logo"/>
 </p>
 
 <p align="center">
@@ -16,6 +16,10 @@
 </p>
 
 ---
+
+<p align="center">
+  <img src="assets/images/logo_white.png" width="200" alt="NoOneLeftBehind Logo"/>
+</p>
 
 ## 📖 About
 

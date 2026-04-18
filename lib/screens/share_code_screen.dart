@@ -35,7 +35,7 @@ class ShareCodeScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -45,26 +45,26 @@ class ShareCodeScreen extends StatelessWidget {
             children: [
               const Spacer(),
 
-              const Icon(Icons.check_circle_outline, size: 80, color: kPrimary),
-              const SizedBox(height: 24),
-              const Text(
+              Icon(Icons.check_circle_outline, size: 80, color: kPrimary),
+              SizedBox(height: 24),
+              Text(
                 "Convoy Created!",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: kTextPrimary, fontSize: 32, fontFamily: 'Thicccboi', fontWeight: FontWeight.w900),
+                style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary), fontSize: 32, fontFamily: 'Thicccboi', fontWeight: FontWeight.w900),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               Text(
                 "Share this code with your friends so they can join your trip.",
                 textAlign: TextAlign.center,
-                style: TextStyle(color: kTextSecondary, fontSize: 16),
+                style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), fontSize: 16),
               ),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
 
               // THE CODE DISPLAY
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: kSurface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: kPrimary, width: 2),
                 ),
@@ -72,37 +72,37 @@ class ShareCodeScreen extends StatelessWidget {
                   children: [
                     Text(
                       tripCode,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 48,
                         fontFamily: 'Thicccboi',
                         fontWeight: FontWeight.w900,
                         letterSpacing: 12,
-                        color: kTextPrimary,
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    SizedBox(height: 12),
 
                     // Duration & Expiry info
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(tripModel?.tripDuration.icon ?? Icons.timer, size: 16, color: kPrimary),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text(
                           '$durationLabel ($durationHours h)',
-                          style: const TextStyle(color: kPrimary, fontSize: 14, fontWeight: FontWeight.w600),
+                          style: TextStyle(color: kPrimary, fontSize: 14, fontWeight: FontWeight.w600),
                         ),
-                        const SizedBox(width: 16),
-                        const Icon(Icons.schedule, size: 16, color: kTextTertiary),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 16),
+                        Icon(Icons.schedule, size: 16, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary)),
+                        SizedBox(width: 4),
                         Text(
                           expiryText,
-                          style: const TextStyle(color: kTextTertiary, fontSize: 14),
+                          style: TextStyle(color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextTertiary : kTextTertiary), fontSize: 14),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
 
                     // COPY & SHARE Buttons
                     Row(
@@ -115,10 +115,10 @@ class ShareCodeScreen extends StatelessWidget {
                               const SnackBar(content: Text("Code copied to clipboard!")),
                             );
                           },
-                          icon: const Icon(Icons.copy, color: kAccentBlue, size: 20),
-                          label: const Text("COPY", style: TextStyle(color: kAccentBlue, fontSize: 14)),
+                          icon: Icon(Icons.copy, color: kAccentBlue, size: 20),
+                          label: Text("COPY", style: TextStyle(color: kAccentBlue, fontSize: 14)),
                         ),
-                        const SizedBox(width: 16),
+                        SizedBox(width: 16),
                         TextButton.icon(
                           onPressed: () {
                             SharePlus.instance.share(
@@ -127,8 +127,8 @@ class ShareCodeScreen extends StatelessWidget {
                               ),
                             );
                           },
-                          icon: const Icon(Icons.share, color: kPrimary, size: 20),
-                          label: const Text("SHARE", style: TextStyle(color: kPrimary, fontSize: 14)),
+                          icon: Icon(Icons.share, color: kPrimary, size: 20),
+                          label: Text("SHARE", style: TextStyle(color: kPrimary, fontSize: 14)),
                         ),
                       ],
                     ),
@@ -153,9 +153,9 @@ class ShareCodeScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                   elevation: 0,
                 ),
-                child: const Text("Launch Radar Map", style: TextStyle(fontSize: 18, fontFamily: 'Thicccboi', fontWeight: FontWeight.w700)),
+                child: Text("Launch Radar Map", style: TextStyle(fontSize: 18, fontFamily: 'Thicccboi', fontWeight: FontWeight.w700)),
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
             ],
           ),
         ),

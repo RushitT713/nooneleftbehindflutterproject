@@ -12,7 +12,7 @@ import 'host_setup_screen.dart';
 import 'join_setup_screen.dart';
 import 'map_screen.dart';
 import 'history_screen.dart';
-
+import 'about_screen.dart';
 class LobbyScreen extends StatefulWidget {
   const LobbyScreen({super.key});
 
@@ -74,12 +74,12 @@ class _LobbyScreenState extends State<LobbyScreen> {
       SnackBar(
         content: Row(
           children: [
-            const Icon(Icons.info_outline, color: Colors.white, size: 20),
-            const SizedBox(width: 10),
+            Icon(Icons.info_outline, color: Colors.white, size: 20),
+            SizedBox(width: 10),
             Expanded(
               child: Text(
                 message,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'Thicccboi',
                   fontWeight: FontWeight.w600,
                 ),
@@ -143,8 +143,8 @@ class _LobbyScreenState extends State<LobbyScreen> {
   @override
   Widget build(BuildContext context) {
     if (_checkingSession) {
-      return const Scaffold(
-        backgroundColor: kBackground,
+      return Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Center(child: CircularProgressIndicator(color: kPrimary)),
       );
     }
@@ -155,7 +155,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     final defaultPinTheme = PinTheme(
       width: 48,
       height: 56,
-      textStyle: const TextStyle(
+      textStyle: TextStyle(
         fontFamily: 'Thicccboi',
         fontSize: 24,
         color: kAccentBlue,
@@ -168,7 +168,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
     );
 
     return Scaffold(
-      backgroundColor: kBackground,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       resizeToAvoidBottomInset: false,
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -184,7 +184,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 right: 0,
                 height: bottomHeight,
                 child: Container(
-                  color: kBackground,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   child: SafeArea(
                     top: false,
                     child: Padding(
@@ -197,17 +197,17 @@ class _LobbyScreenState extends State<LobbyScreen> {
                             "Don't have a code? Create Convoy!",
                             textAlign: TextAlign.center,
                             style: theme.textTheme.headlineMedium?.copyWith(
-                              color: kTextPrimary,
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           Text(
                             "That's ok, we'll walk you through setup.",
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: kTextSecondary,
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                               fontSize: 16,
                             ),
                           ),
@@ -235,7 +235,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                         ],
                       ),
                     ),
@@ -250,7 +250,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                 right: 0,
                 height: topHeight,
                 child: Container(
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: kAccentBlue,
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(32),
@@ -265,12 +265,20 @@ class _LobbyScreenState extends State<LobbyScreen> {
                           top: 0,
                           right: 8,
                           child: IconButton(
-                            icon: const Icon(Icons.history, color: Colors.white),
+                            icon: Icon(Icons.history, color: Colors.white),
                             onPressed: () => Navigator.push(context, FadeSlideRoute(page: const HistoryScreen())),
                           ),
                         ),
+                        Positioned(
+                          top: 0,
+                          left: 8,
+                          child: IconButton(
+                            icon: Icon(Icons.info_outline, color: Colors.white),
+                            onPressed: () => Navigator.push(context, FadeSlideRoute(page: const AboutScreen())),
+                          ),
+                        ),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 52),
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 55),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -283,7 +291,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          SizedBox(height: 32),
                           Pinput(
                             controller: _pinController,
                             length: 6,
@@ -305,7 +313,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                             textCapitalization: TextCapitalization.characters,
                             separatorBuilder: (index) {
                               if (index == 2) {
-                                return const Padding(
+                                return Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 8),
                                   child: Text(
                                     "-",
@@ -317,11 +325,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
                                   ),
                                 );
                               }
-                              return const SizedBox(width: 8);
+                              return SizedBox(width: 8);
                             },
                             onCompleted: (pin) => _onJoinSubmit(),
                           ),
-                          const SizedBox(height: 32),
+                          SizedBox(height: 32),
                           Text(
                             'Tip: You may need to ask the Convoy creator for\nthe code.',
                             textAlign: TextAlign.center,
@@ -354,7 +362,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24), // Space before bottom curve
+                          SizedBox(height: 24), // Space before bottom curve
                         ],
                       ),
                     ),
@@ -374,7 +382,7 @@ class _LobbyScreenState extends State<LobbyScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: kSurface,
+                      color: Theme.of(context).colorScheme.surface,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
@@ -385,11 +393,11 @@ class _LobbyScreenState extends State<LobbyScreen> {
                       ],
                     ),
                     alignment: Alignment.center,
-                    child: const Text(
+                    child: Text(
                       'OR',
                       style: TextStyle(
                         fontFamily: 'Thicccboi',
-                        color: kTextSecondary,
+                        color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                         fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),

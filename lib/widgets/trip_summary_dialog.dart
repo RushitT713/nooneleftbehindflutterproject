@@ -40,7 +40,7 @@ class TripSummaryDialog extends StatelessWidget {
     return PopScope(
       canPop: false, // Prevent dismissing by tapping outside or back button
       child: Dialog(
-        backgroundColor: kBackground,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -49,8 +49,8 @@ class TripSummaryDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Header
-              const Icon(Icons.check_circle_outline, color: kSuccessGreen, size: 64),
-              const SizedBox(height: 16),
+              Icon(Icons.check_circle_outline, color: kSuccessGreen, size: 64),
+              SizedBox(height: 16),
               Text(
                 'Trip Ended',
                 textAlign: TextAlign.center,
@@ -59,13 +59,13 @@ class TripSummaryDialog extends StatelessWidget {
                   fontSize: 24,
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 'The host has concluded this convoy.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium,
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // Stats Row
               Row(
@@ -83,36 +83,36 @@ class TripSummaryDialog extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
 
               // Destination
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: kSurface,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: kSurfaceBorder),
+                  border: Border.all(color: (Theme.of(context).brightness == Brightness.dark ? kDarkSurfaceBorder : kSurfaceBorder)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.flag_rounded, color: kPrimary, size: 20),
-                    const SizedBox(width: 8),
+                    Icon(Icons.flag_rounded, color: kPrimary, size: 20),
+                    SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             'Final Destination',
                             style: TextStyle(
-                              color: kTextSecondary,
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           Text(
                             destName,
-                            style: const TextStyle(
-                              color: kTextPrimary,
+                            style: TextStyle(
+                              color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
@@ -125,7 +125,7 @@ class TripSummaryDialog extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
 
               // Done Button
               SizedBox(
@@ -151,7 +151,7 @@ class TripSummaryDialog extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text(
+                  child: Text(
                     'Done',
                     style: TextStyle(
                       fontSize: 16,
@@ -183,12 +183,12 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, color: kTextSecondary, size: 28),
-        const SizedBox(height: 8),
+        Icon(icon, color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary), size: 28),
+        SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            color: kTextPrimary,
+          style: TextStyle(
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextPrimary : kTextPrimary),
             fontSize: 20,
             fontWeight: FontWeight.w800,
             fontFamily: 'Thicccboi',
@@ -196,8 +196,8 @@ class _StatItem extends StatelessWidget {
         ),
         Text(
           label,
-          style: const TextStyle(
-            color: kTextSecondary,
+          style: TextStyle(
+            color: (Theme.of(context).brightness == Brightness.dark ? kDarkTextSecondary : kTextSecondary),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),

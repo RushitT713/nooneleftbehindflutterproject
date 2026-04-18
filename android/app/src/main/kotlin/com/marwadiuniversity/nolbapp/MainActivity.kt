@@ -1,4 +1,4 @@
-package com.nooneleftbehind.app
+package com.marwadiuniversity.nolbapp
 
 import io.flutter.embedding.android.FlutterActivity
 

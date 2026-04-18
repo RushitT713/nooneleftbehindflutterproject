@@ -74,22 +74,60 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 800),
-          curve: Curves.easeOut,
-          opacity: _opacity,
-          child: AnimatedScale(
-            duration: const Duration(milliseconds: 800),
-            curve: Curves.easeInOutCubic,
-            scale: _scale,
-            child: Image.asset(
-              'assets/images/logo.png',
-              width: 220,
-              height: 220,
+      body: Stack(
+        children: [
+          // Center Animated Logo
+          Center(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              opacity: _opacity,
+              child: AnimatedScale(
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeInOutCubic,
+                scale: _scale,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 250,
+                  height: 250,
+                ),
+              ),
             ),
           ),
-        ),
+          
+          // Bottom "Powered By" Logo
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              opacity: _opacity,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 40.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Powered By:',
+                      style: TextStyle(
+                        fontFamily: 'Thicccboi',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey,
+                        fontSize: 16,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Image.asset(
+                      'assets/images/mu_logo.png',
+                      width: 180,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
