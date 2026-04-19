@@ -18,7 +18,7 @@
 ---
 
 <p align="center">
-  <img src="assets/images/logo_white.png" width="200" alt="NoOneLeftBehind Logo"/>
+  <img src="assets/images/logo_white.png" width="300" alt="NoOneLeftBehind Logo"/>
 </p>
 
 ## 📖 About
